@@ -255,15 +255,19 @@ $getOneProduct = getOneProduct(GET('id'));
                                                                 <input type="text" class="form-control" name="feature_title_color[]" placeholder="عنوان رنگ را وارد کنید"
                                                                        value="<?= htmlspecialchars($price['titleColor'] ?? ''); ?>" />
                                                             </div>
-                                                            <div class="col-lg-3 col-12">
+                                                            <div class="col-lg-2 col-12">
                                                                 <label>قیمت:</label>
                                                                 <input type="text" class="form-control" name="feature_price[]" placeholder="قیمت را وارد کنید"
                                                                        value="<?= htmlspecialchars($price['price'] ?? ''); ?>" />
                                                             </div>
-                                                            <div class="col-lg-3 col-12">
+                                                            <div class="col-lg-2 col-12">
                                                                 <label>قیمت با تخفیف:</label>
                                                                 <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="قیمت با تخفیف وارد کنید"
                                                                        value="<?= htmlspecialchars($price['discount'] ?? ''); ?>" />
+                                                            </div>
+                                                            <div class="col-lg-2 col-12" id="priceOff">
+                                                                <label>حداکثر افزودن به سبد خرید:</label>
+                                                                <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
                                                             </div>
                                                             <div class="col-lg-2 col-12" id="priceOff">
                                                                 <label>موجودی:</label>
@@ -304,7 +308,7 @@ $getOneProduct = getOneProduct(GET('id'));
                                         <label>موجودی:</label>
                                         <input value="<?= $getOneProduct['stock'] ?>" type="number" name="stock" class="form-control" data-v-message="موجودی نمی‌تواند خالی باشد" required />
                                     </div>
-                                    <div class="col-lg-4">
+                                    <div class="col-lg-4" id="maxProduct" style="display:none;">
                                         <label>تعداد حداکثر افزودن به سبد خرید  :(اختیاری)</label>
                                         <input value="<?= $getOneProduct['max_purchases'] ?>" type="text" name="max_purchases" class="form-control"
                                                required />
@@ -643,13 +647,17 @@ $getOneProduct = getOneProduct(GET('id'));
                 <label>عنوان رنگ:</label>
                 <input type="text" class="form-control" name="feature_title_color[]" placeholder="عنوان رنگ را وارد کنید">
             </div>
-                  <div class="col-lg-4 col-12">
+                  <div class="col-lg-2 col-12">
                       <label>قیمت :</label>
                       <input type="text" class="form-control" name="feature_names[]" placeholder="قیمت را وارد کنید">
                   </div>
-                  <div class="col-lg-4 col-12">
+                  <div class="col-lg-2 col-12">
                       <label>قیمت با تخفیف:</label>
                       <input name="feature_prices[]" type="text" class="form-control" placeholder="قیمت با تخفیف وارد کنید">
+                  </div>
+                  <div class="col-lg-2 col-12" id="priceOff">
+                    <label>حداکثر افزودن به سبد خرید:</label>
+                    <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
                   </div>
                      <div class="col-lg-2 col-12" id="priceOff">
                         <label>موجودی:</label>
@@ -697,14 +705,18 @@ $getOneProduct = getOneProduct(GET('id'));
                 <label>عنوان رنگ:</label>
                 <input type="text" class="form-control" name="feature_title_color[]" placeholder="عنوان رنگ را وارد کنید">
             </div>
-            <div class="col-lg-3 col-12" id="price">
+            <div class="col-lg-2 col-12" id="price">
                 <label>قیمت:</label>
                 <input type="text" class="form-control" name="feature_price[]" placeholder="قیمت به تومان">
             </div>
-            <div class="col-lg-3 col-12" id="priceOff">
+            <div class="col-lg-2 col-12" id="priceOff">
                 <label>قیمت با تخفیف:</label>
                 <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="قیمت با تخفیف به تومان">
             </div>
+            <div class="col-lg-2 col-12" id="priceOff">
+                    <label>حداکثر افزودن به سبد خرید:</label>
+                    <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
+                  </div>
             <div class="col-lg-2 col-12" id="priceOff">
                 <label>موجودی:</label>
                 <input name="feature_count[]" type="text" class="form-control" placeholder="موجودی محصول">
@@ -788,14 +800,17 @@ $getOneProduct = getOneProduct(GET('id'));
     const checkbox = document.getElementById('multiPrice');
     const box1 = document.getElementById('box1');
     const box2 = document.getElementById('box2');
+    const maxProduct = document.getElementById('maxProduct');
 
     checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
             box1.style.display = 'none'; // نمایش دیو اول
             box2.style.display = 'flex';  // مخفی کردن دیو دوم
+            maxProduct.style.display = 'none'; // نمایش دیو اول
         } else {
             box1.style.display = 'flex';
             box2.style.display = 'none';
+            maxProduct.style.display = 'block'; // نمایش دیو اول
         }
     });
 </script>
