@@ -91,9 +91,6 @@ $getOneFaq = getOneFaq(GET('id'));
                                                         <a href="/admin/faq/management"
                                                            class="btn btn-secondary">لغو</a>
                                                     </div>
-                                                    <div class="col-6 text-right">
-                                                        <button type="reset" class="btn btn-danger">خالی کردن فرم</button>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </form>

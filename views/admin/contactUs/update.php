@@ -84,9 +84,6 @@ $getAllInformation = getInformation();
                                                     <a href="http://partorasaia.test/admin/information/management"
                                                        class="btn btn-secondary">لغو</a>
                                                 </div>
-                                                <div class="col-lg-6 text-right">
-                                                    <button type="reset" class="btn btn-danger">خالی کردن فرم</button>
-                                                </div>
                                             </div>
                                         </div>
                                     </form>
