@@ -13,6 +13,9 @@
   <component name="ComposerSettings">
     <execution />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -187,6 +190,7 @@
       <workItem from="1766068859401" duration="7021000" />
       <workItem from="1766132777171" duration="1343000" />
       <workItem from="1766237484082" duration="8211000" />
+      <workItem from="1766309136565" duration="441000" />
     </task>
     <servers />
   </component>
