@@ -149,9 +149,9 @@ CREATE TABLE `blog_categories` (
   `id` int UNSIGNED NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `image` varchar(255) DEFAULT NULL,
-  `image_name` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `image_name` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_persian_ci DEFAULT NULL,
   `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_persian_ci;
 
 --
 -- Dumping data for table `blog_categories`
