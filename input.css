@@ -18,9 +18,7 @@
   --color-primaryYellow-500: oklch(75% 0.18 50);
   --color-primaryYellow-600: oklch(60% 0.16 50);
   --color-primaryYellow-700: oklch(48% 0.13 50);
-
   --color-normalZinc: #f7f8fa;
-
   --font-display:             "yekanBakhRegular";
   --font-yekanBakhLight:      "yekanBakhLight";
   --font-yekanBakhRegular:    "yekanBakhRegular";
@@ -29,11 +27,9 @@
   --font-yekanBakhExtraBold:  "yekanBakhExtraBold";
   --font-yekanBakhBlack:      "yekanBakhBlack";
   --font-yekanBakhExtraBlack: "yekanBakhExtraBlack";
-
   --shadow-custom: rgba(0, 0, 0, 0.1) 0px 10px 50px;
-
   --text-smm: 0.815rem;
   --text-xss: 0.625rem;
 
-  
+
 }
