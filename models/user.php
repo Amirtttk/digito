@@ -374,7 +374,6 @@ function getChatTicketsById($ticketId)
     }
     return false;
 }
-
 function getFullCategoryPath($childId)
 {
     global $cn;
@@ -418,4 +417,20 @@ function getFullCategoryPath($childId)
     }
 
     return $result;
+}
+function getOneRecordFromCart($user_id, $product_id)
+{
+    try {
+        global $cn;
+        $sql = "select * from cart where user_id = ? and product_id = ?";
+        $result = $cn->prepare($sql);
+        $result->bindValue(1, $user_id);
+        $result->bindValue(2, $product_id);
+        $result->execute();
+        if ($result->rowCount() > 0) {
+            return $result->fetch();
+        }
+    } catch (PDOException $e) {
+        return false;
+    }
 }

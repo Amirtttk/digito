@@ -267,7 +267,7 @@ $getOneProduct = getOneProduct(GET('id'));
                                                             </div>
                                                             <div class="col-lg-2 col-12" id="priceOff">
                                                                 <label>حداکثر افزودن به سبد خرید:</label>
-                                                                <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
+                                                                <input name="feature_max_purchase[]" value="<?= htmlspecialchars($price['max_purchase'] ?? ''); ?>" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
                                                             </div>
                                                             <div class="col-lg-2 col-12" id="priceOff">
                                                                 <label>موجودی:</label>
@@ -657,7 +657,7 @@ $getOneProduct = getOneProduct(GET('id'));
                   </div>
                   <div class="col-lg-2 col-12" id="priceOff">
                     <label>حداکثر افزودن به سبد خرید:</label>
-                    <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
+                    <input name="feature_max_purchase[]" type="text" class="form-control" placeholder="حداکثر افزودن به سبد خرید">
                   </div>
                      <div class="col-lg-2 col-12" id="priceOff">
                         <label>موجودی:</label>
@@ -711,7 +711,7 @@ $getOneProduct = getOneProduct(GET('id'));
             </div>
             <div class="col-lg-2 col-12" id="priceOff">
                 <label>قیمت با تخفیف:</label>
-                <input name="feature_prices_discount[]" type="text" class="form-control" placeholder="قیمت با تخفیف به تومان">
+                <input name="feature_max_purchase[]" type="text" class="form-control" placeholder="قیمت با تخفیف به تومان">
             </div>
             <div class="col-lg-2 col-12" id="priceOff">
                     <label>حداکثر افزودن به سبد خرید:</label>

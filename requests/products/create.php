@@ -92,12 +92,15 @@ if (isset($_POST['special']) && $_POST['special'] == 'on') {
 if (isset($_POST['feature_price']) && is_array($_POST['feature_price'])) {
     $multiPrices = [];
     foreach ($_POST['feature_price'] as $index => $price) {
+        $newId = uniqid('feature_', true);
         $multiPrices[] = [
+            'id' => $newId,
             'price' => $price,
             'discount' => $_POST['feature_prices_discount'][$index] ?? 0,
             'color' => $_POST['feature_color'][$index] ?? '',
             'titleColor' => $_POST['feature_title_color'][$index] ?? '',
-            'count' => $_POST['feature_count'][$index] ?? ''
+            'count' => $_POST['feature_count'][$index] ?? '',
+            'max_purchase' => $_POST['feature_max_purchase'][$index] ?? '',
         ];
     }
     $fields['price'] = json_encode($multiPrices);
