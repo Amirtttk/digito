@@ -3,7 +3,7 @@ if (POST('userName') && POST('password')) {
     $getOneAdminForLogin = getOneUserForLogin(POST('userName'), POST('password'), TYPES_USERS[POST('type_user')][0]);
     if ($getOneAdminForLogin) {
         $getOneUser = getOneUser($getOneAdminForLogin['userID']);
-        if ($getOneUser['status'] === 1) {
+        if ($getOneUser['status'] == 1) {
             $_SESSION['admin_info'] = [
                 "userID" => $getOneAdminForLogin['userID'],
                 "userType" => POST('type_user'),
