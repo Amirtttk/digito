@@ -334,50 +334,78 @@ $priceData = json_decode($getOneProductBySlug['price'], true);
                             const data = JSON.parse(this.value);
                             const priceBox = document.getElementById('priceDisplay');
                             const stockBox = document.getElementById('stockDisplay');
+                            const cartButtonContainer = document.getElementById('parentButtonCart'); // کانتینر دکمه سبد خرید
 
                             const current = parseFloat(data.price);
                             const discount = parseFloat(data.discount);
                             const count = parseInt(data.count);
 
-                            // 🔹 به‌روزرسانی قیمت
                             let html = '';
                             if (discount < current) {
                                 html += `
-                <div class="text-left text-zinc-400">
-                    <span class="font-yekanBakhSemiBold text-xl line-through">${Intl.NumberFormat().format(current)}</span>
-                    <span class="text-xs">تومان</span>
-                </div>
-                <div class="text-zinc-800 text-left">
-                    <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(discount)}</span>
-                    <span class="text-xs">تومان</span>
-                </div>
-            `;
+                                <div class="text-left text-zinc-400">
+                                    <span class="font-yekanBakhSemiBold text-xl line-through">${Intl.NumberFormat().format(current)}</span>
+                                    <span class="text-xs">تومان</span>
+                                </div>
+                                <div class="text-zinc-800 text-left">
+                                    <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(discount)}</span>
+                                    <span class="text-xs">تومان</span>
+                                </div>
+                                `;
                             } else {
                                 html += `
-                <div class="text-zinc-800 text-left">
-                    <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(current)}</span>
-                    <span class="text-xs">تومان</span>
-                </div>
-            `;
+                                    <div class="text-zinc-800 text-left">
+                                        <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(current)}</span>
+                                        <span class="text-xs">تومان</span>
+                                    </div>
+                                    `;
                             }
                             priceBox.innerHTML = html;
-
-                            // 🔹 به‌روزرسانی وضعیت موجودی
                             let stockHtml = '';
                             if (count === 0) {
                                 stockHtml = `<span class="text-xs text-red-400">ناموجود</span>`;
                             } else if (count <= 2) {
                                 stockHtml = `<span class="text-xs text-red-400">تنها ${count} عدد در انبار باقی مانده</span>`;
                             } else {
-                                stockHtml = `<span class="text-xs text-zinc-500">موجود در انبار (${count} عدد)</span>`;
+                                //stockHtml = `<span class="text-xs text-zinc-500">موجود در انبار (${count} عدد)</span>`;
                             }
-
                             stockBox.innerHTML = stockHtml;
+                            // پیدا کردن دکمه واقعی سبد خرید در داخل کانتینر
+                            const addToCartButton = cartButtonContainer.querySelector('button');
+
+                            if (addToCartButton) {
+                                if (count > 0) {
+                                    // موجود: دکمه را فعال کن
+                                    addToCartButton.disabled = false;
+                                    addToCartButton.classList.remove('opacity-80', 'cursor-not-allowed');
+                                    addToCartButton.textContent = 'افزودن به سبد خرید'; // یا متن دلخواه فعال
+                                    // همچنین می‌توانید کلاس‌های hover را برگردانید:
+                                    // addToCartButton.classList.add('hover:opacity-90');
+
+                                } else {
+                                    // ناموجود: دکمه را غیرفعال کن
+                                    addToCartButton.disabled = true;
+                                    addToCartButton.classList.add('opacity-80', 'cursor-not-allowed');
+                                    addToCartButton.textContent = 'محصول موجود نیست!'; // یا متن دلخواه غیرفعال
+                                    // همچنین می‌توانید کلاس‌های hover را حذف کنید:
+                                    // addToCartButton.classList.remove('hover:opacity-90');
+                                }
+                            }
                         });
                     });
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const firstColorInput = document.querySelector('input[name="colorSelect"]');
+                        if (firstColorInput) {
+                            firstColorInput.checked = true;
+                            // اگر رنگ اول ناموجود باشد، با dispatchEvent دکمه غیرفعال می‌شود
+                            firstColorInput.dispatchEvent(new Event('change'));
+                        }
+                    });
                 </script>
+
                 <div id="parentButtonCart">
                 <?php
+                //dd($_SESSION['cart']);
                 if (isset($_SESSION['user_sending'])) {
                     $getOneRecordFromCart = getOneRecordFromCart($_SESSION['user_sending'], $getOneProductBySlug['id']);
                     if ($getOneRecordFromCart) {
@@ -394,7 +422,7 @@ $priceData = json_decode($getOneProductBySlug['price'], true);
                     <?php
                     }else{
                         ?>
-                        <button class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
+                        <button  onclick="addToCart(<?= $getOneProductBySlug['id'] ?>)" class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
                             افزودن به سبد خرید
                         </button>
                     <?php
@@ -414,7 +442,7 @@ $priceData = json_decode($getOneProductBySlug['price'], true);
                         <?php
                 }else{
                     ?>
-                    <button class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
+                    <button onclick="addToCart(<?= $getOneProductBySlug['id'] ?>)" class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
                         افزودن به سبد خرید
                     </button>
                     <?php

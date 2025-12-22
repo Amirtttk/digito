@@ -434,3 +434,18 @@ function getOneRecordFromCart($user_id, $product_id)
         return false;
     }
 }
+function getUserRecordFromCart($user_id)
+{
+    try {
+        global $cn;
+        $sql = "select * from cart where user_id = ?";
+        $result = $cn->prepare($sql);
+        $result->bindValue(1, $user_id);
+        $result->execute();
+        if ($result->rowCount() > 0) {
+            return $result->fetchAll();
+        }
+    } catch (PDOException $e) {
+        return false;
+    }
+}

@@ -496,3 +496,24 @@ function returnItemBlog($carts)
     }
     return $itemssCart;
 }
+function returnItemCart($carts)
+{
+    $itemssCart = [];
+    if ($carts) {
+        foreach ($carts as $key => $cart) {
+            $getOneProduct2 = getOneProduct($cart["product_id"]);
+            $image = $getOneProduct2["image"] ? "../../".str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct2['image']) : '';
+
+            $itemssCart[$key] = [
+                "product_id" => $cart['product_id'],
+                "variant_id" => $cart['variant_id'] ?? null,
+                "title" => $getOneProduct2['title'],
+                "image" => $image,
+                "price" => $cart['price'],
+                "discount" => $cart['discount'] ?? $cart['price'],
+                "quantity" => $cart['quantity'],
+            ];
+        }
+    }
+    return $itemssCart;
+}

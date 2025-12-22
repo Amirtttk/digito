@@ -974,82 +974,102 @@ function AddTicketDetails(ticketId) {
   });
 }
 function addToCart(product_id) {
-  const select = document.getElementById('featureSelect');
-  const selectedOption = select.options[select.selectedIndex];
+  const cartButtonContainer = document.getElementById('parentButtonCart');
+  if (!cartButtonContainer) return;
 
-  const selectedPrice = selectedOption.getAttribute('data-price');
-  const selectedDelivery = selectedOption.getAttribute('data-delivery');
-  const selectedName = selectedOption.text;
+  let data = null;
 
-  if (!selectedPrice || !selectedDelivery) {
-    alert('لطفاً یکی از گزینه‌ها را انتخاب کنید');
-    return;
+  // بررسی محصولات چندقیمتی
+  const checkedColor = document.querySelector('input[name="colorSelect"]:checked');
+  if (checkedColor) {
+    data = JSON.parse(checkedColor.value); // {id, price, discount, count, titleColor, color}
+  } else {
+    // محصول تک‌قیمتی
+    const priceAttr = cartButtonContainer.getAttribute('data-price');
+    const discountAttr = cartButtonContainer.getAttribute('data-discount') || priceAttr;
+    const countAttr = cartButtonContainer.getAttribute('data-count') || 1;
+
+    if (!priceAttr) {
+      alert('اطلاعات محصول در دسترس نیست!');
+      return;
+    }
+
+    data = {
+      id: null,
+      price: parseFloat(priceAttr),
+      discount: parseFloat(discountAttr),
+      count: parseInt(countAttr),
+      titleColor: null,
+      color: null
+    };
   }
+
+  // تعداد انتخاب شده
+  const quantityInput = cartButtonContainer.querySelector('input[type="number"]');
+  let quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+  if (quantity > data.count) quantity = data.count;
+
+  // ارسال AJAX به add.php
   $.ajax({
     url: `${domain}requests/cart/add.php`,
     type: "POST",
     dataType: 'json',
     data: {
       product_id: product_id,
-      price: selectedPrice,
-      delivery_time: selectedDelivery,
-      name: selectedName
+      variant_id: data.id || '',
+      color: data.color || '',
+      titleColor: data.titleColor || '',
+      price: data.price,
+      discount: data.discount,
+      quantity: quantity
     },
-    success: function (response) {
+    success: function(response) {
       if (response.status == 200) {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
+        Toast.fire({ icon: response.type, title: response.text });
 
-        document.getElementById('listCart').innerHTML = '';
-        document.getElementById('countCart').innerHTML = response.count + 'محصول';
+        const listCart = document.getElementById('listCart');
+        if (listCart) listCart.innerHTML = '';
+        document.getElementById('countCart').innerHTML = response.count + ' محصول';
         document.getElementById('countCart2').innerHTML = response.count;
         document.getElementById('priceCart').innerHTML = response.sumPrice;
 
-        document.getElementById('parentButtonCart').innerHTML = `
-          <div id="parentButtonCart">
-            <a href="/cart" class="block text-center mx-auto w-full mt-6 px-2 py-3 bg-gradient-to-bl from-blue-400 to-blue-600 hover:opacity-85 transition text-gray-100 rounded-2xl">
-                        مشاهده سبد خرید
-            </a>
-          </div>
-        `;
-
-        let result = Object.keys(response.itemsCart).map((key) => [key, response.itemsCart[key]]);
-        result.forEach(item => {
-          console.log(item[1].price);
-          document.getElementById('listCart').innerHTML += `           
-            <li id="product${product_id}">
-                                <div class="flex gap-x-2 py-5">
-                                    <!-- Product -->
-                                    <div class="relative min-w-fit">
-                                        <a href="./single-product.html">
-                                            <img alt="" class="h-[120px] w-[120px]" src="${item[1].image}">
-                                        </a>
-                                    </div>
-                                    <div class="w-full space-y-1.5">
-                                        <!-- Title -->
-                                        <a class="line-clamp-2 h-12 text-zinc-700" >
-                                            ${item[1].title}
-                                        </a>
-                                        <span class="text-zinc-700 ">${item[1].name}</span>
-                                        <div class="flex items-center justify-between gap-x-2 pt-4">
-                                            <!-- Price -->
-                                            <div class="text-gray-700">
-                                                <span class="text-lg font-bold">${numberWithCommas(item[1].price)}</span>
-                                                <span class="text-sm">تومان</span>
-                                            </div>
+        Object.values(response.itemsCart).forEach(item => {
+          if (listCart) listCart.innerHTML += `
+                        <li id="product${item.product_id}_${item.variant_id || 'default'}">
+                            <div class="flex gap-x-2 py-5">
+                                <div class="relative min-w-fit">
+                                    <a href="./single-product.html">
+                                        <img alt="" class="h-[120px] w-[120px]" src="${item.image}">
+                                    </a>
+                                </div>
+                                <div class="w-full space-y-1.5">
+                                    <a class="line-clamp-2 h-12 text-zinc-700">${item.title}</a>
+                                    ${item.titleColor ? `<div class="text-sm text-gray-500">رنگ: ${item.titleColor}</div>` : ''}
+                                    <div class="flex items-center justify-between gap-x-2 pt-4">
+                                        <div class="text-gray-700">
+                                            <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
+                                            <span class="text-sm">تومان</span>
                                         </div>
+                                        <div class="text-gray-500">تعداد: ${item.quantity}</div>
                                     </div>
                                 </div>
-                            </li>
-            
-            
-          `;
+                            </div>
+                        </li>
+                    `;
         });
+
+        // تغییر دکمه به "مشاهده سبد"
+        cartButtonContainer.innerHTML = `
+                    <a href="/cart" class="block text-center mx-auto w-full mt-6 px-2 py-3 bg-gradient-to-bl from-blue-400 to-blue-600 hover:opacity-85 transition text-gray-100 rounded-2xl">
+                        مشاهده سبد خرید
+                    </a>
+                `;
       } else if (response.status == 4000) {
         location.reload();
       }
     }
   });
 }
+
+
+
