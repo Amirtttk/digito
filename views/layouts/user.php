@@ -396,20 +396,21 @@ if ($getInformation['image']){
                                     </div>
                                 </div>
                                 <div class="flex justify-between px-6 w-full pb-2">
-                                    <!-- Quantity Container 1 -->
-                                    <div class="quantity-container flex h-10 max-w-28 items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-                                        <button class="cursor-pointer" type="button" data-action="increment">
-                                            <svg class="fill-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"></path></svg>
-                                        </button>
-                                        <input value="1" disabled type="number" class="flex h-5 w-full grow select-none items-center justify-center bg-transparent text-center text-sm text-zinc-700 outline-none">
-                                        <button class="cursor-pointer" type="button" data-action="decrement">
-                                            <svg class="fill-red-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H40a6,6,0,0,1,0-12H216A6,6,0,0,1,222,128Z"></path></svg>
-                                        </button>
+                                    <!-- color -->
+                                    <div class="flex gap-x-2 text-sm text-gray-600">
+                                        <div style="background-color: #0f1ef5;" class="w-4 h-4 rounded-full"></div>
+                                        آبی
                                     </div>
                                     <!-- Price -->
-                                    <div class="text-gray-700">
-                                        <span class="text-lg font-bold">1,800,000</span>
-                                        <span class="text-sm">تومان</span>
+                                    <div class="flex flex-col items-end">
+                                        <div class="text-gray-400">
+                                            <span class="text-sm line-through">1,950,000</span>
+                                            <span class="text-sm">تومان</span>
+                                        </div>
+                                        <div class="text-gray-700">
+                                            <span class="text-lg font-bold">1,800,000</span>
+                                            <span class="text-sm">تومان</span>
+                                        </div>
                                     </div>
                                 </div>
                             </li>
