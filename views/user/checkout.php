@@ -182,31 +182,6 @@
             <textarea placeholder="نکات مهم درباره تحویل محصول" name="mailTicket" cols="30" rows="7" class="rounded-2xl rounded-tr-sm text-sm text-zinc-600 w-full bg-[#f0f0f0] px-5 py-3.5 placeholder:text-zinc-400 placeholder:text-xs focus:outline-1 focus:outline-zinc-300"></textarea>
           </div>
         </div>
-        <div class="mb-5 mt-10">
-          <div class="flex gap-x-1 items-center text-zinc-700 border-b pb-2 mb-4">
-            نوع ارسال
-          </div>
-          <ul class="flex flex-col md:flex-row w-full gap-5">
-            <li class="w-full">
-              <input type="radio" id="4" name="send" value="4" class="hidden peer" requiblue="" checked>
-              <label for="4" class="flex items-center justify-center gap-x-2 w-full p-3 text-gray-600 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-primary-400 peer-checked:text-primary-400 peer-checked:shadow-md hover:bg-gray-100">
-                <div class="text-center">
-                  <span class="text-sm">پست معمولی :</span>
-                  <span class="text-sm">19,000 تومان</span>
-                </div>
-              </label>
-            </li>
-            <li class="w-full">
-              <input type="radio" id="5" name="send" value="5" class="hidden peer" requiblue="">
-              <label for="5" class="flex items-center justify-center gap-x-2 w-full p-3 text-gray-600 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-primary-400 peer-checked:text-primary-400 peer-checked:shadow-md hover:bg-gray-100">
-                <div class="text-center">
-                  <span class="text-sm">پست پیشتاز :</span>
-                  <span class="text-sm">32,000 تومان</span>
-                </div>
-              </label>
-            </li>
-          </ul>
-        </div>
       </div>
       <div class="lg:w-3/12 lg:pt-5 my-10 lg:my-0">
         <div class="flex justify-between items-center text-primary-500">
@@ -245,6 +220,17 @@
         <a href="" class="block bg-primary-500 hover:bg-primary-400 text-white text-center mt-10 px-5 md:px-2.5 py-3 md:py-4 rounded-xl shadow-lg transition-all font-yekanBakhBold md:text-lg">
           ثبت و پرداخت
         </a>
+        <div class="mt-6">
+          <p class="text-sm text-primary-500 cursor-pointer py-1" id="offCodeShow" onclick="offCodeShow()">
+            کد تخفیف دارید؟
+          </p>
+          <form class="flex gap-2" id="offCodeButton" style="display:none">
+            <input style="background: rgb(224, 224, 224);" class="rounded-xl text-zinc-700 bg-white text-sm px-4 py-3 md:py-3.5 max-w-56 placeholder:text-zinc-500 placeholder:text-xs focus:outline-0" type="text" placeholder="کد تخفیف را وارد کنید">
+            <button type="submit" class="max-w-28 py-3 px-4 md:px-5 text-xss md:text-xs bg-primary-500 hover:opacity-80 text-white rounded-xl cursor-pointer">
+                اعمال
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </main>

@@ -326,6 +326,12 @@ let priceFilter = document.querySelectorAll("#shop-price-slider"),
             });
       });
   })
+/////////////////////////////// off code show
+if (document.getElementById("offCodeShow")) {
+  function offCodeShow() {
+    document.getElementById("offCodeButton").style.display = "block";
+  }
+}
 /////////////////////////////// copy link page to clipboard
 document.querySelectorAll('a[data-copy]').forEach(link => {
   link.addEventListener('click', async (e) => {
