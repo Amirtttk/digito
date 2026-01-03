@@ -540,7 +540,7 @@ if ($getInformation['image']){
                                 <span class="text-xs">تومان</span>
                             </div>
                         </div>
-                        <a href="./checkout.html" class="w-28 py-3 text-sm bg-primary-400 hover:bg-primary-500 transition text-gray-100 rounded-xl text-center">
+                        <a href="/cart" class="w-28 py-3 text-sm bg-primary-400 hover:bg-primary-500 transition text-gray-100 rounded-xl text-center">
                             <button type="button">
                                 ثبت سفارش
                             </button>
