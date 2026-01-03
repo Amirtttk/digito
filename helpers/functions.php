@@ -449,25 +449,31 @@ function returnItemProducts($carts)
     }
     return $itemssCart;
 }
-function sumCart($hide = false)
-{
-    $quantity = 0;
+function sumCart( $hide = false) {
     $sumPrice = 0;
-        if (isset($_SESSION['cart'])) {
-            foreach ($_SESSION['cart'] as $item) {
-                $quantity = $item['quantity'];
-                $quantity *= $item['price'];
-                $sumPrice += $quantity;
 
+    // ===== کاربر لاگین =====
+    if (isset($_SESSION['user_sending'])){
+        $cartItems = getUserRecordFromCart($_SESSION['user_sending']);
+        if (!empty($cartItems)) {
+            foreach ($cartItems as $item) {
+
+                $price = floatval($item['discount'] ?? $item['price']);
+                $sumPrice += intval($item['quantity']) * $price;
             }
-        } else {
-            return 0;
         }
-    if ($hide) {
-        return $sumPrice;
-    } else {
-        return number_format($sumPrice);
     }
+    // ===== کاربر مهمان =====
+    else {
+        if (!empty($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $item) {
+                $price = floatval($item['discount'] ?? $item['price']);
+                $sumPrice += intval($item['quantity']) * $price;
+            }
+        }
+    }
+
+    return $hide ? number_format($sumPrice) : number_format($sumPrice);
 }
 function returnItemBlog($carts)
 {
@@ -502,8 +508,9 @@ function returnItemCart($carts)
     if ($carts) {
         foreach ($carts as $key => $cart) {
             $getOneProduct2 = getOneProduct($cart["product_id"]);
-            $image = $getOneProduct2["image"] ? "../../".str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct2['image']) : '';
-
+            $image = !empty($getOneProduct['main_image'])
+                ? "public/images/products/" . $getOneProduct['main_image']
+                : '';
             $itemssCart[$key] = [
                 "product_id" => $cart['product_id'],
                 "variant_id" => $cart['variant_id'] ?? null,
@@ -516,4 +523,24 @@ function returnItemCart($carts)
         }
     }
     return $itemssCart;
+}
+function getCartTotalQuantity() {
+    $total = 0;
+
+    if (isset($_SESSION['user_sending'])) {
+        $items = getUserRecordFromCart($_SESSION['user_sending']);
+        if ($items) {
+            foreach ($items as $item) {
+                $total += intval($item['quantity']);
+            }
+        }
+    } else {
+        if (!empty($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $item) {
+                $total += intval($item['quantity']);
+            }
+        }
+    }
+
+    return $total;
 }

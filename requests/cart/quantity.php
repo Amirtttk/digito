@@ -1,251 +1,136 @@
 <?php
-//$quantity = 0;
-/*if (!isset($_SESSION['user_sending'])) {
-if (isset($_SESSION['cart'])) {
-    if ($_POST['item'] === 'yes'){
-        $getOneProduct = getOneProduct(POST("productId"));
-        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-        if ($getOneProduct["image"]) {
-            $image = $thumbnail ? "../../" . $thumbnail : '';
-        }
-        $quantity = $_SESSION['cart'][ "item" .$getOneProduct['id']]['quantity'];
-        $_SESSION['cart'][ "item".$getOneProduct['id']] = [
-            "id" => $getOneProduct['id'],
-            "price" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['price'],
-            "name" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['name'],
-            "delivery_time" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['delivery_time'],
-            "image" => $image,
-            "title" => $getOneProduct['title'],
-            "quantity" =>$quantity+1,
-        ];
-        responseJson([
-            "status" => 200,
-            "text" => "تعداد محصول با موفقیت افزایش یافت ",
-            "type" => "success",
-            "count" => count($_SESSION['cart']),
-            "sumPrice" => sumCart(),
-            "itemsCart" => $_SESSION['cart'],
-            "quantity" =>$quantity+1,
-        ]);
-    }else if($_POST['item'] === 'no'){
-        $getOneProduct = getOneProduct(POST("productId"));
-        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-        if ($getOneProduct["image"]) {
-            $image = $thumbnail ? "../../" . $thumbnail : '';
-        }
-        $quantity = $_SESSION['cart'][ "item" .$getOneProduct['id']]['quantity'];
-        if($quantity <= 1){
-            responseJson([
-                "status" => 400,
-                "text" => "تعداد محصول نمیتواند کمتر 1 باشد",
-                "type" => "warning",
-            ]);
-        }
-        $_SESSION['cart'][ "item".$getOneProduct['id']] = [
-            "id" => $getOneProduct['id'],
-            "price" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['price'],
-            "name" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['name'],
-            "delivery_time" => $_SESSION['cart'][ "item" .$getOneProduct['id']]['delivery_time'],
-            "image" => $image,
-            "title" => $getOneProduct['title'],
-            "quantity" =>$quantity-1,
-        ];
-        responseJson([
-            "status" => 200,
-            "text" => "تعداد محصول با موفقیت کاهش  یافت ",
-            "type" => "success",
-            "count" => count($_SESSION['cart']),
-            "sumPrice" => sumCart(),
-            "itemsCart" => $_SESSION['cart'],
-            "quantity" => $quantity-1,
+// session_start();
 
-        ]);
-    }
+$product_id = (int)($_POST['product_id'] ?? 0);
+$variant_id = $_POST['variant_id'] ?? 'default';
+$action     = $_POST['item'] ?? null; // yes | no
+
+if (!$product_id || !$action) {
+    responseJson(["status" => 400, "text" => "درخواست نامعتبر است"]);
 }
+
+$getOneProduct = getOneProduct($product_id);
+if (!$getOneProduct) {
+    responseJson(["status" => 404, "text" => "محصول یافت نشد"]);
 }
-*/
-/*if (POST("productId") || $_POST['item']){
-$quantity = 0;
-$getOneProduct = getOneProduct(POST("productId"));
-$thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-$image = $thumbnail ? "../../" . $thumbnail : '';
 
-if ($_POST['item'] === 'yes') {
-    $quantity = $_SESSION['cart']["item" . $getOneProduct['id']]['quantity'] ?? 0;
-    $quantity++;
-    // به‌روزرسانی در دیتابیس اگر کاربر لاگین کرده بود
-    if (isset($_SESSION['user_sending'])) {
-        $userId = $_SESSION['user_sending'];
-        $productId = $getOneProduct['id'];
+// کلید آیتم
+$itemKey = 'item_' . $product_id . '_' . $variant_id;
 
-        $existing = findCartItem($userId, $productId);
-        if ($existing) {
-            updateRecordToDatabase("cart", ['quantity' => $quantity], $existing['id'], 'id');
-        } else {
-            insertRecordToDatabase("cart", [
-                'user_id' => $userId,
-                'product_id' => $productId,
-                'quantity' => 1,
-                'price' => $_SESSION['cart']["item" . $productId]['price'],
-                'name' => $_SESSION['cart']["item" . $productId]['name'],
-                'delivery_time' => $_SESSION['cart']["item" . $productId]['delivery_time'],
-                'image' => $image,
-                'title' => $getOneProduct['title'],
-            ]);
-        }
-    }
+// محدودیت‌ها
+$maxPurchase = (int)($getOneProduct['max_purchase'] ?? 1000);
+$stock       = (int)($getOneProduct['stock'] ?? 1000);
 
-    $_SESSION['cart']["item" . $getOneProduct['id']] = [
-        "id" => $getOneProduct['id'],
-        "price" => $_SESSION['cart']["item" . $getOneProduct['id']]['price'],
-        "name" => $_SESSION['cart']["item" . $getOneProduct['id']]['name'],
-        "delivery_time" => $_SESSION['cart']["item" . $getOneProduct['id']]['delivery_time'],
-        "image" => $image,
-        "title" => $getOneProduct['title'],
-        "quantity" => $quantity,
-    ];
-
-    responseJson([
-        "status" => 200,
-        "text" => "تعداد محصول با موفقیت افزایش یافت",
-        "type" => "success",
-        "count" => count($_SESSION['cart']),
-        "sumPrice" => sumCart(),
-        "itemsCart" => $_SESSION['cart'],
-        "quantity" => $quantity,
-    ]);
-
-} elseif ($_POST['item'] === 'no') {
-    $quantity = $_SESSION['cart']["item" . $getOneProduct['id']]['quantity'];
-    if ($quantity <= 1) {
+/**
+ * ======================
+ * بررسی محدودیت
+ * ======================
+ */
+function checkLimit($quantity, $maxPurchase, $stock)
+{
+    if ($quantity > $stock) {
         responseJson([
             "status" => 400,
-            "text" => "تعداد محصول نمی‌تواند کمتر از 1 باشد",
-            "type" => "warning",
+            "type"   => "warning",
+            "text"   => "تنها {$stock} عدد از این محصول موجود است",
         ]);
     }
 
-    $quantity--;
-
-    if (isset($_SESSION['user_sending'])) {
-        $userId = $_SESSION['user_sending'];
-        $productId = $getOneProduct['id'];
-        $existing = findCartItem($userId, $productId);
-        if ($existing) {
-            updateRecordToDatabase("cart", ['quantity' => $quantity], $existing['id'], 'id');
-        }
+    if ($maxPurchase > 0 && $quantity > $maxPurchase) {
+        responseJson([
+            "status" => 400,
+            "type"   => "warning",
+            "text"   => "حداکثر تعداد مجاز خرید {$maxPurchase} عدد است",
+        ]);
     }
-
-    $_SESSION['cart']["item" . $getOneProduct['id']]['quantity'] = $quantity;
-
-    responseJson([
-        "status" => 200,
-        "text" => "تعداد محصول با موفقیت کاهش یافت",
-        "type" => "success",
-        "count" => count($_SESSION['cart']),
-        "sumPrice" => sumCart(),
-        "itemsCart" => $_SESSION['cart'],
-        "quantity" => $quantity,
-    ]);
 }
-}*/
-$quantity = 0;
-$getOneProduct = getOneProduct(POST("productId"));
-$thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-$image = $thumbnail ? "../../" . $thumbnail : '';
-$productId = $getOneProduct['id'];
-if (isset($_SESSION['user_sending'])) {
-    // -----------------------------
-    // مسیر برای کاربران لاگین‌شده
-    // -----------------------------
-    $userId = $_SESSION['user_sending'];
-    $existing = findCartItem($userId, $productId);
-    if ($_POST['item'] === 'yes') {
-        if ($existing) {
-            $quantity = $existing['quantity'] + 1;
-            updateRecordToDatabase("cart", ['quantity' => $quantity], $existing['id'], 'id');
-        } else {
-            $quantity = 1;
-            insertRecordToDatabase("cart", [
-                'user_id' => $userId,
-                'product_id' => $productId,
-                'quantity' => $quantity,
-                'price' => $existing['price'],
-                'name' => $existing['name'],
-                'delivery_time' => $existing['delivery_time'],
-                'image' => $image,
-                'title' => $getOneProduct['title'],
 
-            ]);
-        }
-    } elseif ($_POST['item'] === 'no') {
-        if ($existing) {
-            $quantity = $existing['quantity'];
-            if ($quantity <= 1) {
-                responseJson([
-                    "status" => 400,
-                    "text" => "تعداد محصول نمی‌تواند کمتر از 1 باشد",
-                    "type" => "warning",
-                ]);
-            }
-            $quantity--;
-            updateRecordToDatabase("cart", ['quantity' => $quantity], $existing['id'], 'id');
-        }
+/**
+ * ======================
+ * کاربر لاگین
+ * ======================
+ */
+if (!empty($_SESSION['user_sending'])) {
+
+    $userId = $_SESSION['user_sending'];
+
+    $existing = getOneRecordFromCart($userId, $product_id, $variant_id);
+    if (!$existing) {
+        responseJson(["status" => 404, "text" => "آیتم در سبد یافت نشد"]);
     }
 
-    responseJson([
-        "status" => 200,
-        "text" => "تعداد محصول با موفقیت به‌روز شد",
-        "type" => "success",
-        "quantity" => $quantity,
-        "price" => $existing['price'],
-        "name" => $existing['name'],
-        "delivery_time" => $existing['delivery_time'],
-        "image" => $image,
-        "title" => $getOneProduct['title'],
-        "sumPrice" => sumCart(),
-    ]);
+    $quantity = (int)$existing['quantity'];
 
-} else {
-    // -----------------------------
-    // مسیر برای مهمان / سشن
-    // -----------------------------
-    if ($_POST['item'] === 'yes') {
-        $quantity = $_SESSION['cart']["item" . $productId]['quantity'] ?? 0;
+    if ($action === 'yes') {
         $quantity++;
-
-        $_SESSION['cart']["item" . $productId] = [
-            "id" => $productId,
-            "price" => $_SESSION['cart']["item" . $productId]['price'],
-            "name" => $_SESSION['cart']["item" . $productId]['name'],
-            "delivery_time" => $_SESSION['cart']["item" . $productId]['delivery_time'],
-            "image" => $image,
-            "title" => $getOneProduct['title'],
-            "quantity" => $quantity,
-        ];
-
-    } elseif ($_POST['item'] === 'no') {
-        $quantity = $_SESSION['cart']["item" . $productId]['quantity'];
+        checkLimit($quantity, $maxPurchase, $stock);
+    }
+    if ($action === 'no') {
         if ($quantity <= 1) {
             responseJson([
                 "status" => 400,
-                "text" => "تعداد محصول نمی‌تواند کمتر از 1 باشد",
-                "type" => "warning",
+                "type"   => "warning",
+                "text"   => "تعداد نمی‌تواند کمتر از 1 باشد",
             ]);
         }
         $quantity--;
-        $_SESSION['cart']["item" . $productId]['quantity'] = $quantity;
     }
-
+    updateRecordToDatabase('cart', [
+        'quantity' => $quantity
+    ], $existing['id'], 'id');
+    $items = getUserRecordFromCart($userId);
     responseJson([
-        "status" => 200,
-        "text" => "تعداد محصول با موفقیت به‌روز شد",
-        "type" => "success",
-        "count" => count($_SESSION['cart']),
-        "sumPrice" => sumCart(),
-        "itemsCart" => $_SESSION['cart'],
+        "status"   => 200,
+        "type"     => "success",
+        "text"     => "تعداد به‌روزرسانی شد",
         "quantity" => $quantity,
+        "count"    => array_sum(array_column($items, 'quantity')),
+        "sumPrice" => sumCart($userId),
+        "itemsCart"=> returnItemCart($items),
+        "maxPurchase" => $maxPurchase,
     ]);
 }
 
+/**
+ * ======================
+ * کاربر مهمان (SESSION)
+ * ======================
+ */
+if (!isset($_SESSION['cart'][$itemKey])) {
+    responseJson(["status" => 404, "text" => "آیتم در سبد یافت نشد"]);
+}
 
+$quantity = (int)$_SESSION['cart'][$itemKey]['quantity'];
+
+if ($action === 'yes') {
+    $quantity++;
+    checkLimit($quantity, $maxPurchase, $stock);
+}
+
+if ($action === 'no') {
+    if ($quantity <= 1) {
+        responseJson([
+            "status" => 400,
+            "type"   => "warning",
+            "text"   => "تعداد نمی‌تواند کمتر از 1 باشد",
+        ]);
+    }
+    $quantity--;
+}
+
+$_SESSION['cart'][$itemKey]['quantity'] = $quantity;
+
+$totalQuantity = array_sum(
+    array_column($_SESSION['cart'], 'quantity')
+);
+
+responseJson([
+    "status"   => 200,
+    "type"     => "success",
+    "text"     => "تعداد به‌روزرسانی شد",
+    "quantity" => $quantity,
+    "count"    => $totalQuantity,
+    "sumPrice" => sumCart(),
+    "itemsCart"=> $_SESSION['cart'],
+    "maxPurchase" => $maxPurchase,
+]);

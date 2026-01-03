@@ -449,3 +449,32 @@ function getUserRecordFromCart($user_id)
         return false;
     }
 }
+function deleteItemFromCart($id)
+{
+    try {
+        global $cn;
+        $sql = "delete from cart where id = ?";
+        $result = $cn->prepare($sql);
+        $result->bindValue(1, $id);
+        $result->execute();
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+function findCartItem($user_id, $product_id)
+{
+    try {
+        global $cn;
+        $sql = "select * from cart where user_id = ? AND product_id = ?";
+        $result = $cn->prepare($sql);
+        $result->bindValue(1, $user_id);
+        $result->bindValue(2, $product_id);
+        $result->execute();
+        if ($result->rowCount() > 0) {
+            return $result->fetch();
+        }
+    } catch (PDOException $e) {
+        return false;
+    }
+}

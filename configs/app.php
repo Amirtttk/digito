@@ -2,8 +2,8 @@
 const DB = [
     "name" => "digito",
     "username" => "root",
-    // "password" => "",
-    "password" => "1234",
+     "password" => "",
+    //"password" => "1234",
     "host" => "localhost"
 ];
 const SECRET_TOKEN = [

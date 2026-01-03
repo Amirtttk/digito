@@ -29,24 +29,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.laravel-idea.search-composer-json&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/ghoreishi/accountino&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.laravel-idea.search-composer-json": "true",
+    "last_opened_file_path": "E:/ghoreishi/teb",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\ghoreishi\digito\views\user" />
       <recent name="E:\ghoreishi\digito\requests" />
       <recent name="E:\ghoreishi\digito\views\admin" />
-      <recent name="E:\ghoreishi\digito\views\user" />
       <recent name="E:\ghoreishi\digito\assets\user\image" />
       <recent name="E:\ghoreishi\digito\requests\information" />
     </key>
@@ -197,7 +197,20 @@
       <workItem from="1766309829367" duration="563000" />
       <workItem from="1766326104575" duration="8103000" />
       <workItem from="1766412397717" duration="5787000" />
-      <workItem from="1766434885750" duration="3969000" />
+      <workItem from="1766434885750" duration="4002000" />
+      <workItem from="1766475177658" duration="12164000" />
+      <workItem from="1766587613510" duration="2108000" />
+      <workItem from="1766645169508" duration="841000" />
+      <workItem from="1766752954714" duration="4000" />
+      <workItem from="1766846272012" duration="7361000" />
+      <workItem from="1766936123361" duration="9078000" />
+      <workItem from="1767020317992" duration="9874000" />
+      <workItem from="1767103359229" duration="1145000" />
+      <workItem from="1767164708023" duration="5908000" />
+      <workItem from="1767251839606" duration="5744000" />
+      <workItem from="1767276594165" duration="4359000" />
+      <workItem from="1767382199177" duration="4000" />
+      <workItem from="1767428700791" duration="4847000" />
     </task>
     <servers />
   </component>

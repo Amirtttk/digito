@@ -1,49 +1,77 @@
 <?php
-$getOneProduct = getOneProduct(POST("product_id"));
-if ($getOneProduct) {
-    if (isset($_SESSION['user_sending'])) {
-        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-        if ($getOneProduct["image"]) {
-            $image = $thumbnail ? "../../" . $thumbnail : '';
-        }
-        $getOneRecordFromCart = getOneRecordFromCart($_SESSION['user_sending'], $getOneProduct['id']);
-        if ($getOneRecordFromCart) {
-            deleteItemFromCart($getOneRecordFromCart['id']);
-        } else {
-            responseJson([
-                "status" => 4000,
-            ]);
-        }
-        $getUserRecordFromCart = getUserRecordFromCart($_SESSION['user_sending']);
-        $itemsCart = returnItemCart($getUserRecordFromCart);
+$product_id = $_POST['product_id'] ?? null;
+$variant_id = $_POST['variant_id'] ?? 'default';
+if (!$product_id) {
+    responseJson([
+        "status" => 400,
+        "text"   => "شناسه محصول نامعتبر است",
+        "type"   => "error",
+    ]);
+}
+// کلید آیتم (دقیقاً مطابق add)
+$itemKey = 'item_' . $product_id . '_' . $variant_id;
+/**
+ * =========================
+ * کاربر لاگین (دیتابیس)
+ * =========================
+ */
+if (!empty($_SESSION['user_sending'])) {
+
+    $existing = getOneRecordFromCart(
+        $_SESSION['user_sending'],
+        $product_id,
+        $variant_id
+    );
+
+    if (!$existing) {
         responseJson([
-            "status" => 200,
-            "text" => "محصول با موفقیت از سبد خرید شما حذف شد",
-            "type" => "success",
-            "count" => $getUserRecordFromCart != false ? count($getUserRecordFromCart) : 0,
-            "sumPrice" => sumCart(),
-            "sumPriceForHide" => sumCart(true),
-            "itemsCart" => $itemsCart,
-        ]);
-    } else {
-        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneProduct['image']);
-        if ($getOneProduct["image"]) {
-            $image = $thumbnail ? "../../" . $thumbnail : '';
-        }
-        if (isset($_SESSION['cart']['item' . POST("product_id")])) {
-            unset($_SESSION['cart']['item' . POST("product_id")]);
-        } else {
-            responseJson([
-                "status" => 4000,
-            ]);
-        }
-        responseJson([
-            "status" => 200,
-            "text" => "محصول با موفقیت از سبد خرید شما حذف شد",
-            "type" => "success",
-            "count" => count($_SESSION['cart']),
-            "sumPrice" => sumCart(),
-            "itemsCart" => $_SESSION['cart'],
+            "status" => 404,
+            "text"   => "این آیتم در سبد خرید وجود ندارد",
+            "type"   => "warning",
         ]);
     }
+
+    deleteItemFromCart($existing['id']);
+
+    $items = getUserRecordFromCart($_SESSION['user_sending']);
+
+    responseJson([
+        "status"    => 200,
+        "text"      => "محصول با موفقیت از سبد خرید حذف شد",
+        "type"      => "success",
+        "count"     => $items ? array_sum(array_column($items, 'quantity')) : 0,
+        "sumPrice"  => sumCart($_SESSION['user_sending']),
+        "itemsCart" => returnItemCart($items),
+    ]);
+}
+
+/**
+ * =========================
+ * کاربر مهمان (SESSION)
+ * =========================
+ */
+else {
+
+    if (!isset($_SESSION['cart'][$itemKey])) {
+        responseJson([
+            "status" => 404,
+            "text"   => "این آیتم در سبد خرید وجود ندارد",
+            "type"   => "warning",
+        ]);
+    }
+
+    unset($_SESSION['cart'][$itemKey]);
+
+    $totalQuantity = array_sum(
+        array_column($_SESSION['cart'], 'quantity')
+    );
+
+    responseJson([
+        "status"    => 200,
+        "text"      => "محصول با موفقیت از سبد خرید حذف شد",
+        "type"      => "success",
+        "count"     => $totalQuantity,
+        "sumPrice"  => sumCart(),
+        "itemsCart" => $_SESSION['cart'],
+    ]);
 }

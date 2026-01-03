@@ -48,18 +48,51 @@ if ($count < 5 && $count2 < 15) {
                 }else{
                     $url = "dashboard";
                 }
-                if (isset($_SESSION['cart'])) {
-                    foreach ($_SESSION['cart'] as $oneItem) {
-                        if (!getOneRecordFromCart($_SESSION['user_sending'], $oneItem['id'])) {
-                            $fields = [
-                                "id" => null,
-                                "user_id" => $_SESSION['user_sending'],
-                                "product_id" => $oneItem['id'],
-                                "quantity" => $oneItem['quantity'],
-                            ];
-                            insertRecordToDatabase('cart', $fields);
+                if (!empty($_SESSION['user_sending']) && !empty($_SESSION['cart'])) {
+
+                    $userId = (int)$_SESSION['user_sending'];
+
+                    foreach ($_SESSION['cart'] as $itemKey => $item) {
+
+                        $productId = (int)$item['product_id'];
+                        $variantId = $item['variant_id'] ?? null;
+                        $quantity  = (int)$item['quantity'];
+
+                        // بررسی وجود آیتم در دیتابیس
+                        $existing = getOneRecordFromCart(
+                            $userId,
+                            $productId,
+                            $variantId
+                        );
+
+                        if ($existing) {
+                            // اگر وجود داشت → جمع تعداد
+                            $newQuantity = $existing['quantity'] + $quantity;
+
+                            updateRecordToDatabase(
+                                'cart',
+                                ['quantity' => $newQuantity],
+                                $existing['id'],
+                                'id'
+                            );
+
+                        } else {
+                            // اگر وجود نداشت → درج کامل آیتم
+                            insertRecordToDatabase('cart', [
+                                'user_id'    => $userId,
+                                'product_id' => $productId,
+                                'variant_id' => $variantId,
+                                'titleColor' => $item['titleColor'] ?? null,
+                                'color'      => $item['color'] ?? null,
+                                'price'      => $item['price'],
+                                'discount'   => $item['discount'],
+                                'quantity'   => $quantity,
+                                'image'      => $item['image'] ?? null,
+                                'title'      => $item['title'],
+                            ]);
                         }
                     }
+                    // پاک کردن سشن بعد از انتقال
                     unset($_SESSION['cart']);
                 }
                 responseJson([

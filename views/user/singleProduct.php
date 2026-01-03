@@ -189,11 +189,11 @@ $priceData = json_decode($getOneProductBySlug['price'], true);
                 درخواست مرجوع کردن کالا در گروه لپ تاپ با دلیل "انصراف از خرید" تنها در صورتی قابل تایید است که کالا در شرایط اولیه باشد (در صورت پلمپ بودن، کالا نباید باز شده باشد).
               </div>
         </div>
-
+          <div class="lg:w-3/12">
           <?php
           if (is_array($priceData)) {
               ?>
-          <div class="lg:w-3/12">
+
               <div class="lg:mt-8 mb-8">
                   <div class="text-zinc-700">
                       رنگ:
@@ -334,126 +334,162 @@ $priceData = json_decode($getOneProductBySlug['price'], true);
                             const data = JSON.parse(this.value);
                             const priceBox = document.getElementById('priceDisplay');
                             const stockBox = document.getElementById('stockDisplay');
-                            const cartButtonContainer = document.getElementById('parentButtonCart'); // کانتینر دکمه سبد خرید
+                            const cartButtonContainer = document.getElementById('parentButtonCart');
 
-                            const current = parseFloat(data.price);
-                            const discount = parseFloat(data.discount);
+                            const currentPrice = parseFloat(data.price);
+                            const discountPrice = parseFloat(data.discount);
                             const count = parseInt(data.count);
+                            const variantId = data.id || null; // برای کلید آیتم
 
-                            let html = '';
-                            if (discount < current) {
-                                html += `
-                                <div class="text-left text-zinc-400">
-                                    <span class="font-yekanBakhSemiBold text-xl line-through">${Intl.NumberFormat().format(current)}</span>
-                                    <span class="text-xs">تومان</span>
-                                </div>
-                                <div class="text-zinc-800 text-left">
-                                    <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(discount)}</span>
-                                    <span class="text-xs">تومان</span>
-                                </div>
-                                `;
+                            // بروزرسانی قیمت و تخفیف
+                            let priceHtml = '';
+                            if (discountPrice < currentPrice) {
+                                priceHtml += `
+            <div class="text-left text-zinc-400">
+                <span class="font-yekanBakhSemiBold text-xl line-through">${Intl.NumberFormat().format(currentPrice)}</span>
+                <span class="text-xs">تومان</span>
+            </div>
+            <div class="text-zinc-800 text-left">
+                <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(discountPrice)}</span>
+                <span class="text-xs">تومان</span>
+            </div>`;
                             } else {
-                                html += `
-                                    <div class="text-zinc-800 text-left">
-                                        <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(current)}</span>
-                                        <span class="text-xs">تومان</span>
-                                    </div>
-                                    `;
+                                priceHtml += `
+            <div class="text-zinc-800 text-left">
+                <span class="font-yekanBakhExtraBold text-3xl">${Intl.NumberFormat().format(currentPrice)}</span>
+                <span class="text-xs">تومان</span>
+            </div>`;
                             }
-                            priceBox.innerHTML = html;
+                            priceBox.innerHTML = priceHtml;
+
+                            // بروزرسانی موجودی
                             let stockHtml = '';
                             if (count === 0) {
                                 stockHtml = `<span class="text-xs text-red-400">ناموجود</span>`;
                             } else if (count <= 2) {
                                 stockHtml = `<span class="text-xs text-red-400">تنها ${count} عدد در انبار باقی مانده</span>`;
-                            } else {
-                                //stockHtml = `<span class="text-xs text-zinc-500">موجود در انبار (${count} عدد)</span>`;
                             }
                             stockBox.innerHTML = stockHtml;
-                            // پیدا کردن دکمه واقعی سبد خرید در داخل کانتینر
+
+                            // پیدا کردن دکمه واقعی افزودن به سبد خرید
                             const addToCartButton = cartButtonContainer.querySelector('button');
 
                             if (addToCartButton) {
                                 if (count > 0) {
-                                    // موجود: دکمه را فعال کن
                                     addToCartButton.disabled = false;
                                     addToCartButton.classList.remove('opacity-80', 'cursor-not-allowed');
-                                    addToCartButton.textContent = 'افزودن به سبد خرید'; // یا متن دلخواه فعال
-                                    // همچنین می‌توانید کلاس‌های hover را برگردانید:
-                                    // addToCartButton.classList.add('hover:opacity-90');
-
+                                    addToCartButton.dataset.variantId = variantId; // ذخیره variant_id برای ارسال
                                 } else {
-                                    // ناموجود: دکمه را غیرفعال کن
                                     addToCartButton.disabled = true;
                                     addToCartButton.classList.add('opacity-80', 'cursor-not-allowed');
-                                    addToCartButton.textContent = 'محصول موجود نیست!'; // یا متن دلخواه غیرفعال
-                                    // همچنین می‌توانید کلاس‌های hover را حذف کنید:
-                                    // addToCartButton.classList.remove('hover:opacity-90');
+                                    addToCartButton.textContent = 'محصول موجود نیست!';
                                 }
                             }
                         });
                     });
+
+                    // انتخاب خودکار اولین رنگ هنگام لود صفحه
                     document.addEventListener('DOMContentLoaded', () => {
                         const firstColorInput = document.querySelector('input[name="colorSelect"]');
                         if (firstColorInput) {
                             firstColorInput.checked = true;
-                            // اگر رنگ اول ناموجود باشد، با dispatchEvent دکمه غیرفعال می‌شود
                             firstColorInput.dispatchEvent(new Event('change'));
                         }
                     });
                 </script>
-
-                <div id="parentButtonCart">
                 <?php
+                //unset($_SESSION['cart']);
                 //dd($_SESSION['cart']);
-                if (isset($_SESSION['user_sending'])) {
-                    $getOneRecordFromCart = getOneRecordFromCart($_SESSION['user_sending'], $getOneProductBySlug['id']);
-                    if ($getOneRecordFromCart) {
-                        ?>
-                        <div class="quantity-container mt-5 flex h-10 w-full items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-                            <button class="cursor-pointer" type="button" data-action="increment">
-                                <svg class="fill-green-500 size-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"></path></svg>
-                            </button>
-                            <input value="1" disabled="" type="number" class="flex h-5 w-full grow select-none items-center justify-center bg-transparent text-center text-sm md:text-lg font-yekanBakhExtraBold text-zinc-600 outline-none">
-                            <button class="cursor-pointer" type="button" data-action="decrement">
-                                <svg class="fill-red-500 size-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H40a6,6,0,0,1,0-12H216A6,6,0,0,1,222,128Z"></path></svg>
-                            </button>
-                        </div>
-                    <?php
-                    }else{
-                        ?>
-                        <button  onclick="addToCart(<?= $getOneProductBySlug['id'] ?>)" class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
-                            افزودن به سبد خرید
-                        </button>
-                    <?php
+                //session_start();
+                // ساختار واریانت‌ها
+                $productVariants = [];
+
+                if (!empty($getOneProduct['price']) && is_string($getOneProduct['price'])) {
+                    $variantsData = json_decode($getOneProduct['price'], true);
+
+                    if (is_array($variantsData)) {
+                        foreach ($variantsData as $variant) {
+                            $productVariants[] = [
+                                'id'         => $variant['id'],
+                                'color'      => $variant['color'] ?? '',
+                                'titleColor' => $variant['titleColor'] ?? '',
+                                'price'      => (float)$variant['price'],
+                                'discount'   => (float)($variant['discount'] ?? $variant['price']),
+                                'count'      => (int)($variant['count'] ?? 1000),
+                            ];
+                        }
                     }
-                }else{
-                if (isset($_SESSION['cart']['item' . $getOneProductBySlug['id']])) {
-                    ?>
-                    <div class="quantity-container mt-5 flex h-10 w-full items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-                        <button class="cursor-pointer" type="button" data-action="increment">
-                            <svg class="fill-green-500 size-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"></path></svg>
-                        </button>
-                        <input value="1" disabled="" type="number" class="flex h-5 w-full grow select-none items-center justify-center bg-transparent text-center text-sm md:text-lg font-yekanBakhExtraBold text-zinc-600 outline-none">
-                        <button class="cursor-pointer" type="button" data-action="decrement">
-                            <svg class="fill-red-500 size-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H40a6,6,0,0,1,0-12H216A6,6,0,0,1,222,128Z"></path></svg>
-                        </button>
-                    </div>
-                        <?php
-                }else{
-                    ?>
-                    <button onclick="addToCart(<?= $getOneProductBySlug['id'] ?>)" class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 transition text-gray-100 rounded-lg">
-                        افزودن به سبد خرید
-                    </button>
-                    <?php
-                }
+                } else {
+                    $productVariants[] = [
+                        'id'         => 'default',
+                        'color'      => $getOneProductBySlug['color'] ?? '',
+                        'titleColor' => $getOneProductBySlug['titleColor'] ?? '',
+                        'price'      => (float)$getOneProductBySlug['price'],
+                        'discount'   => (float)(
+                            $getOneProductBySlug['token'] > 0
+                                ? $getOneProductBySlug['price'] - (($getOneProductBySlug['price'] * $getOneProductBySlug['token']) / 100)
+                                : $getOneProductBySlug['price']
+                        ),
+                        'count' => (int)($getOneProductBySlug['stock'] ?? 1000),
+                    ];
                 }
                 ?>
+
+
+                <div id="parentButtonCart">
+                    <?php foreach ($productVariants as $variant): ?>
+                        <?php
+                        $itemKey = 'item_' . $getOneProductBySlug['id'] . '_' . $variant['id'];
+                        $inCart = false;
+                        $quantityInCart = 0;
+                        if (!empty($_SESSION['user_sending'])) {
+                            $existing = getOneRecordFromCart(
+                                $_SESSION['user_sending'],
+                                $getOneProductBySlug['id'],
+                                $variant['id']
+                            );
+                            if ($existing) {
+                                $inCart = true;
+                                $quantityInCart = (int)$existing['quantity'];
+                            }
+                        } else {
+                            if (isset($_SESSION['cart'][$itemKey])) {
+                                $inCart = true;
+                                $quantityInCart = (int)$_SESSION['cart'][$itemKey]['quantity'];
+                            }
+                        }
+                        ?>
+                        <div class="variant-button-container my-2" data-variant-id="<?= $variant['id'] ?>">
+                          <!--  <?php /*if ($inCart): */?>
+                                <div class="quantity-container flex h-10 w-full items-center justify-between rounded-lg border px-2">
+                                    <button onclick="updateCartQuantity(<?php /*= $getOneProductBySlug['id'] */?>,'<?php /*= $variant['id'] */?>','increment')">+</button>
+                                    <input disabled value="<?php /*= $quantityInCart */?>" class="w-full text-center bg-transparent">
+                                    <button onclick="updateCartQuantity(<?php /*= $getOneProductBySlug['id'] */?>,'<?php /*= $variant['id'] */?>','decrement')">-</button>
+                                </div>
+                            --><?php /*else: */?>
+                                <button
+                                        onclick="addToCart(<?= $getOneProductBySlug['id'] ?>,'<?= $variant['id'] ?>')"
+                                        class="w-full px-3 py-2 bg-primary-500 text-white rounded-lg">
+                                    افزودن به سبد خرید
+                                </button>
+                           <!-- --><?php /*endif; */?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
-            <!-- <button class="hidden lg:block mx-auto w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 opacity-80 cursor-not-allowed transition text-gray-100 rounded-lg">
-              محصول موجود نیست!
-            </button> -->
+              <div id="cartContainer"
+                   data-price="<?= (int)$getOneProductBySlug['price'] ?>"
+                   data-discount="<?= (int)(
+                   $getOneProductBySlug['token'] > 0
+                       ? $getOneProductBySlug['price'] - (($getOneProductBySlug['price'] * $getOneProductBySlug['token']) / 100)
+                       : $getOneProductBySlug['price']
+                   ) ?>"
+                   data-count="<?= (int)($getOneProductBySlug['stock'] ?? 1000) ?>">
+              </div>
+
+              <!-- <button class="hidden lg:block mx-auto w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-500 to-primary-400 opacity-80 cursor-not-allowed transition text-gray-100 rounded-lg">
+                محصول موجود نیست!
+              </button> -->
           </div>
           <!-- fixed div buy mobile -->
           <div class="fixed flex bottom-0 right-0 lg:hidden bg-white border-t border-t-zinc-300 w-full px-5 py-3 gap-x-2 z-50">

@@ -30,29 +30,13 @@ if (mainImage) {
       zoomBox.classList.add('hidden');
   });
 }
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 function changeImage(element) {
     mainImage.src = element.src;
 }
 //////////////////////////////// Quantity input
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".quantity-container").forEach(container => {
-    const input = container.querySelector("input[type='number']");
-    const incrementButton = container.querySelector("button[data-action='increment']");
-    const decrementButton = container.querySelector("button[data-action='decrement']");
-
-    incrementButton.addEventListener("click", function () {
-      let value = parseInt(input.value, 10);
-      input.value = value + 1;
-    });
-
-    decrementButton.addEventListener("click", function () {
-      let value = parseInt(input.value, 10);
-      if (value > 1) {
-        input.value = value - 1;
-      }
-    });
-  });
-});
 ////////////////////////////////////////// modal login register
 document.querySelectorAll(".open-modal").forEach((button) => {
   button.addEventListener("click", () => {
@@ -973,102 +957,346 @@ function AddTicketDetails(ticketId) {
     },
   });
 }
-function addToCart(product_id) {
+function addToCart(product_id, variant_id) {
   const cartButtonContainer = document.getElementById('parentButtonCart');
   if (!cartButtonContainer) return;
-
-  let data = null;
-
-  // بررسی محصولات چندقیمتی
+  // عنصر حاوی داده‌های محصول (برای محصول تک‌قیمتی)
+  const cartContainer = document.getElementById('cartContainer');
+  let payload = {
+    product_id: product_id,
+    variant_id: '',
+    color: '',
+    titleColor: '',
+    price: 0,
+    discount: 0,
+    quantity: 1,
+    maxCount: 1
+  };
   const checkedColor = document.querySelector('input[name="colorSelect"]:checked');
-  if (checkedColor) {
-    data = JSON.parse(checkedColor.value); // {id, price, discount, count, titleColor, color}
-  } else {
-    // محصول تک‌قیمتی
-    const priceAttr = cartButtonContainer.getAttribute('data-price');
-    const discountAttr = cartButtonContainer.getAttribute('data-discount') || priceAttr;
-    const countAttr = cartButtonContainer.getAttribute('data-count') || 1;
 
-    if (!priceAttr) {
-      alert('اطلاعات محصول در دسترس نیست!');
+  // ===== محصول واریانتی =====
+  if (checkedColor) {
+    const v = JSON.parse(checkedColor.value);
+    payload.variant_id = v.id;
+    payload.price = Number(v.price);
+    payload.discount = Number(v.discount ?? v.price);
+    payload.color = v.color ?? '';
+    payload.titleColor = v.titleColor ?? '';
+    payload.maxCount = Number(v.count ?? 1);
+  }
+  // ===== محصول تک‌قیمتی =====
+  else {
+    if (!cartContainer) {
+      Toast.fire({ icon: 'error', title: 'اطلاعات محصول کامل نیست' });
       return;
     }
 
-    data = {
-      id: null,
-      price: parseFloat(priceAttr),
-      discount: parseFloat(discountAttr),
-      count: parseInt(countAttr),
-      titleColor: null,
-      color: null
-    };
+    const priceAttr = cartContainer.dataset.price;
+    const discountAttr = cartContainer.dataset.discount ?? priceAttr;
+    const countAttr = cartContainer.dataset.count ?? '1000';
+
+    if (!priceAttr || isNaN(Number(priceAttr))) {
+      Toast.fire({ icon: 'error', title: 'قیمت محصول مشخص نیست' });
+      return;
+    }
+
+    payload.price = Number(priceAttr);
+    payload.discount = Number(discountAttr);
+    payload.maxCount = Number(countAttr);
+    payload.variant_id = 'default';
   }
-
-  // تعداد انتخاب شده
+  if (payload.maxCount <= 0) {
+    Toast.fire({ icon: 'error', title: 'این محصول ناموجود است' });
+    return;
+  }
+  // خواندن تعداد از input number
   const quantityInput = cartButtonContainer.querySelector('input[type="number"]');
-  let quantity = quantityInput ? parseInt(quantityInput.value) : 1;
-  if (quantity > data.count) quantity = data.count;
-
-  // ارسال AJAX به add.php
+  let quantity = quantityInput ? Number(quantityInput.value) : 1;
+  if (isNaN(quantity) || quantity < 1) quantity = 1;
+  if (quantity > payload.maxCount) quantity = payload.maxCount;
+  payload.quantity = quantity;
+  // ارسال Ajax
   $.ajax({
     url: `${domain}requests/cart/add.php`,
+    type: "POST",
+    dataType: "json",
+    data: payload,
+    success(response) {
+      if (response.status !== 200) {
+        Toast.fire({ icon: response.type || 'error', title: response.text || 'خطایی رخ داد' });
+        return;
+      }
+
+      Toast.fire({ icon: response.type, title: response.text });
+
+      // پاک‌کردن لیست فعلی سبد
+      const listCart = document.getElementById('listCart');
+      if (listCart) {
+        listCart.innerHTML = '';
+        // رندر مجدد آیتم‌ها
+        Object.values(response.itemsCart).forEach(item => {
+          listCart.innerHTML += `
+            <li id="product${item.product_id}_${item.variant_id || 'default'}">
+              <div class="flex gap-x-2 pt-5">
+                <div class="relative min-w-fit">
+                  <a href="/singleProduct?slug=${item.slug}&code=${item.product_id}">
+                    <img class="h-[120px] w-[120px]" src="${item.image}">
+                  </a>
+                </div>
+                <div class="w-full flex gap-x-1">
+                  <a class="line-clamp-2 h-12 text-zinc-700" href="/singleProduct?slug=${item.slug}&code=${item.product_id}">${item.title}</a>
+                  <div onclick="removeFromCart('${item.product_id}','${item.variant_id || ''}')" class="size-8 group cursor-pointer rounded-lg p-1 bg-primary-400 hover:bg-primary-500 transition">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path class="stroke-white" d="M20.5 6H3.5M9.5 11L10 16M14.5 11L14 16" stroke="" stroke-width="1.5" stroke-linecap="round"/>
+                      <path class="stroke-white" d="M6.5 6H6.61C7.01245 5.98972 7.40242 5.85822 7.72892 5.62271C8.05543 5.3872 8.30325 5.05864 8.44 4.68L8.474 4.577L8.571 4.286C8.654 4.037 8.696 3.913 8.751 3.807C8.85921 3.59939 9.01451 3.41999 9.20448 3.28316C9.39444 3.14633 9.6138 3.05586 9.845 3.019C9.962 3 10.093 3 10.355 3H13.645C13.907 3 14.038 3 14.155 3.019C14.3862 3.05586 14.6056 3.14633 14.7955 3.28316C14.9855 3.41999 15.1408 3.59939 15.249 3.807C15.304 3.913 15.346 4.037 15.429 4.286L15.526 4.577C15.6527 4.99827 15.9148 5.36601 16.2717 5.62326C16.6285 5.88051 17.0603 6.01293 17.5 6" stroke="black" stroke-width="1.5"/>
+                      <path class="stroke-white" d="M18.374 15.4C18.197 18.054 18.108 19.381 17.243 20.19C16.378 20.999 15.048 21 12.387 21H11.613C8.95299 21 7.62299 21 6.75699 20.19C5.89199 19.381 5.80399 18.054 5.62699 15.4L5.16699 8.5M18.833 8.5L18.633 11.5" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between px-6 w-full pb-2">
+                ${
+              item.color && item.titleColor
+                  ? `<div class="flex gap-x-2 text-sm text-gray-600 items-center">
+                        <div class="w-4 h-4 rounded-full border" style="background-color:${item.color}"></div>
+                        ${item.titleColor}
+                      </div>`
+                  : `<div></div>`
+          }
+                <div class="flex flex-col items-end">
+                  ${
+              item.discount < item.price
+                  ? `<div class="text-gray-400"><span class="text-sm line-through">${numberWithCommas(item.price)}</span><span class="text-sm">تومان</span></div>`
+                  : ''
+          }
+                  <div class="text-gray-700">
+                    <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
+                    <span class="text-sm">تومان</span>
+                  </div>
+                </div>
+              </div>
+            </li>`;
+        });
+      }
+      // آپدیت دکمه مربوط به واریانت (فقط در صورت وجود)
+      const variantId = payload.variant_id;
+      if (variantId !== 'default') {
+        const variantBox = document.querySelector(
+            `.variant-button-container[data-variant-id="${variantId}"]`
+        );
+        if (variantBox) {
+          variantBox.innerHTML = `
+            <div class="quantity-container flex h-10 w-full items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
+              <button type="button" onclick="updateCartQuantity(${product_id}, '${variantId}', 'increment')">+</button>
+              <input value="${payload.quantity}" disabled type="number" class="flex h-5 w-full grow text-center text-sm md:text-lg font-yekanBakhExtraBold text-zinc-600">
+              <button type="button" onclick="updateCartQuantity(${product_id}, '${variantId}', 'decrement')">-</button>
+            </div>
+          `;
+        }
+      }
+      // آپدیت badge و جمع کل
+      const badge = document.getElementById('cartBadge');
+      const countCart = document.getElementById('countCart');
+      const priceCart = document.getElementById('priceCart');
+
+      if (badge) badge.textContent = response.count;
+      if (countCart) countCart.innerHTML = response.count;
+      if (priceCart) priceCart.innerHTML = response.sumPrice;
+    },
+   /* error() {
+      Toast.fire({ icon: 'error', title: 'خطا در ارتباط با سرور' });
+    }*/
+  });
+}
+function deleteFromCart(product_id, variant_id) {
+  $.ajax({
+    url: 'requests/cart/delete.php',
     type: "POST",
     dataType: 'json',
     data: {
       product_id: product_id,
-      variant_id: data.id || '',
-      color: data.color || '',
-      titleColor: data.titleColor || '',
-      price: data.price,
-      discount: data.discount,
-      quantity: quantity
+      variant_id: variant_id
     },
-    success: function(response) {
+    success: function (response) {
       if (response.status == 200) {
-        Toast.fire({ icon: response.type, title: response.text });
 
-        const listCart = document.getElementById('listCart');
-        if (listCart) listCart.innerHTML = '';
-        document.getElementById('countCart').innerHTML = response.count + ' محصول';
-        document.getElementById('countCart2').innerHTML = response.count;
-        document.getElementById('priceCart').innerHTML = response.sumPrice;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        })
 
-        Object.values(response.itemsCart).forEach(item => {
-          if (listCart) listCart.innerHTML += `
-                        <li id="product${item.product_id}_${item.variant_id || 'default'}">
-                            <div class="flex gap-x-2 py-5">
-                                <div class="relative min-w-fit">
-                                    <a href="./single-product.html">
-                                        <img alt="" class="h-[120px] w-[120px]" src="${item.image}">
-                                    </a>
-                                </div>
-                                <div class="w-full space-y-1.5">
-                                    <a class="line-clamp-2 h-12 text-zinc-700">${item.title}</a>
-                                    ${item.titleColor ? `<div class="text-sm text-gray-500">رنگ: ${item.titleColor}</div>` : ''}
-                                    <div class="flex items-center justify-between gap-x-2 pt-4">
-                                        <div class="text-gray-700">
-                                            <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
-                                            <span class="text-sm">تومان</span>
-                                        </div>
-                                        <div class="text-gray-500">تعداد: ${item.quantity}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    `;
+        // حذف آیتم از DOM (بر اساس کلید کامل)
+        const rowId = 'parentDivProductInPageCart_' + product_id + '_' + variant_id;
+        const el = document.getElementById(rowId);
+        if (el) el.remove();
+
+        document.getElementById('listCart').innerHTML = '';
+
+        if (response.count == 0) {
+          document.getElementById('parentAllDivCart').innerHTML = `
+            <div class="flex flex-col justify-center items-center mx-auto">
+              <div class="text-zinc-600 text-center py-10 text-xl md:text-3xl flex gap-x-1">
+                <img class="size-6 md:size-10" src="./../../assets/user/image/icons/cancel.svg">
+                سبد خرید خالی است !
+              </div>
+              <a href="/" class="bg-primary-500 hover:bg-primary-400 text-white px-5 py-3 rounded-lg">
+                مشاهده جدیدترین محصولات
+              </a>
+            </div>
+          `;
+          document.getElementById('listCart').innerHTML = "سبد خرید خالی است";
+        }
+
+        document.getElementById('countCart').innerHTML  = response.count;
+        document.getElementById('priceCart').innerHTML  = response.sumPrice;
+        document.getElementById('sumPriceInPageCart').innerHTML  = response.sumPrice;
+        document.getElementById('sumPriceInPageCart1').innerHTML = response.sumPrice;
+
+        let result = Object.values(response.itemsCart);
+
+        result.forEach(item => {
+          document.getElementById('listCart').innerHTML += `
+            <li id="product${item.product_id}_${item.variant_id || 'default'}">
+              <div class="flex gap-x-2 pt-5">
+                <div class="relative min-w-fit">
+                  <a href="/singleProduct?slug=${item.slug}&code=${item.product_id}">
+                    <img class="h-[120px] w-[120px]" src="${item.image}">
+                  </a>
+                </div>
+                <div class="w-full flex gap-x-1">
+                  <a class="line-clamp-2 h-12 text-zinc-700" href="/singleProduct?slug=${item.slug}&code=${item.product_id}">${item.title}</a>
+                  <div onclick="removeFromCart('${item.product_id}','${item.variant_id || ''}')" class="size-8 group cursor-pointer rounded-lg p-1 bg-primary-400 hover:bg-primary-500 transition">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path class="stroke-white" d="M20.5 6H3.5M9.5 11L10 16M14.5 11L14 16" stroke="" stroke-width="1.5" stroke-linecap="round"/>
+                      <path class="stroke-white" d="M6.5 6H6.61C7.01245 5.98972 7.40242 5.85822 7.72892 5.62271C8.05543 5.3872 8.30325 5.05864 8.44 4.68L8.474 4.577L8.571 4.286C8.654 4.037 8.696 3.913 8.751 3.807C8.85921 3.59939 9.01451 3.41999 9.20448 3.28316C9.39444 3.14633 9.6138 3.05586 9.845 3.019C9.962 3 10.093 3 10.355 3H13.645C13.907 3 14.038 3 14.155 3.019C14.3862 3.05586 14.6056 3.14633 14.7955 3.28316C14.9855 3.41999 15.1408 3.59939 15.249 3.807C15.304 3.913 15.346 4.037 15.429 4.286L15.526 4.577C15.6527 4.99827 15.9148 5.36601 16.2717 5.62326C16.6285 5.88051 17.0603 6.01293 17.5 6" stroke="black" stroke-width="1.5"/>
+                      <path class="stroke-white" d="M18.374 15.4C18.197 18.054 18.108 19.381 17.243 20.19C16.378 20.999 15.048 21 12.387 21H11.613C8.95299 21 7.62299 21 6.75699 20.19C5.89199 19.381 5.80399 18.054 5.62699 15.4L5.16699 8.5M18.833 8.5L18.633 11.5" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between px-6 w-full pb-2">
+                ${
+              item.color && item.titleColor
+                  ? `<div class="flex gap-x-2 text-sm text-gray-600 items-center">
+                        <div class="w-4 h-4 rounded-full border" style="background-color:${item.color}"></div>
+                        ${item.titleColor}
+                      </div>`
+                  : `<div></div>`
+          }
+                <div class="flex flex-col items-end">
+                  ${
+              item.discount < item.price
+                  ? `<div class="text-gray-400"><span class="text-sm line-through">${numberWithCommas(item.price)}</span><span class="text-sm">تومان</span></div>`
+                  : ''
+          }
+                  <div class="text-gray-700">
+                    <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
+                    <span class="text-sm">تومان</span>
+                  </div>
+                </div>
+              </div>
+            </li>
+          `;
         });
 
-        // تغییر دکمه به "مشاهده سبد"
-        cartButtonContainer.innerHTML = `
-                    <a href="/cart" class="block text-center mx-auto w-full mt-6 px-2 py-3 bg-gradient-to-bl from-blue-400 to-blue-600 hover:opacity-85 transition text-gray-100 rounded-2xl">
-                        مشاهده سبد خرید
-                    </a>
-                `;
       } else if (response.status == 4000) {
         location.reload();
       }
     }
   });
+}
+
+function QuantityCart(product_id, variant_id, action) {
+  $.ajax({
+    url: `${domain}requests/cart/quantity.php`,
+    type: "POST",
+    dataType: "json", // ✅ خیلی مهم
+    data: {
+      product_id: product_id,
+      variant_id: variant_id,
+      item: action
+    },
+    success: function (response) {
+
+      // 🔔 حالا درست کار می‌کنه
+      Toast.fire({
+        icon: response.type,
+        title: response.text,
+      });
+
+      if (response.status !== 200) return;
+
+      const quantity    = parseInt(response.quantity);
+      const maxPurchase = parseInt(response.maxPurchase);
+
+      // input تعداد
+      const input = document.getElementById(
+          `countItem_${product_id}_${variant_id}`
+      );
+      if (input) input.value = quantity;
+
+      // دکمه +
+      const incBtn = document.querySelector(
+          `.btn-inc[data-product="${product_id}"][data-variant="${variant_id}"]`
+      );
+
+      // دکمه -
+      const decBtn = document.querySelector(
+          `.btn-dec[data-product="${product_id}"][data-variant="${variant_id}"]`
+      );
+
+      if (incBtn) {
+        incBtn.disabled = quantity >= maxPurchase;
+        incBtn.classList.toggle("opacity-40", quantity >= maxPurchase);
+        incBtn.classList.toggle("cursor-not-allowed", quantity >= maxPurchase);
+      }
+
+      if (decBtn) {
+        decBtn.disabled = quantity <= 1;
+        decBtn.classList.toggle("opacity-40", quantity <= 1);
+        decBtn.classList.toggle("cursor-not-allowed", quantity <= 1);
+      }
+
+      // قیمت
+      if (document.getElementById("sumPriceInPageCart")) {
+        document.getElementById("sumPriceInPageCart").innerHTML = response.sumPrice;
+      }
+      if (document.getElementById("sumPriceInPageCart1")) {
+        document.getElementById("sumPriceInPageCart1").innerHTML = response.sumPrice;
+      }
+    }
+  });
+}
+function cleanPrice(priceStr) {
+  return priceStr.replace(/,/g, '');
+}
+function payment(isLogined = true) {
+  if (!isLogined)
+    location.replace("login?action=cart");
+  let price = document.getElementById('sumPriceInPageCart').innerHTML;
+  price =  cleanPrice(price);
+  $.ajax({
+    url:`${domain}requests/cart/payment.php`,
+    type: "POST",
+    dataType: 'json',
+    data: {
+      price
+    },
+    success: function (response) {
+      if (response.status == 200) {
+        Toast.fire({
+          icon: "success",
+          title: response.text,
+        });
+        location.replace(response.url)
+      }
+      else
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+    }
+  })
 }
 
 

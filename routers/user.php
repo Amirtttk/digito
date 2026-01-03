@@ -48,3 +48,9 @@ $router->add('/rules', function () {
 $router->add('/singleProduct', function () {
     renderUserView('singleProduct');
 });
+$router->add('/cart', function () {
+    renderUserView('cart');
+});
+$router->add('/checkout', function () {
+    renderUserView('checkout');
+});
