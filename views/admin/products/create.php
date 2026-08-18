@@ -184,6 +184,12 @@
                                         <div id="imagePreview" class="row mt-3"></div>
                                         <input type="hidden" name="main_image_index" id="mainImageIndex" value="0">
                                     </div>
+                                    <div class="col-lg-6">
+                                        <label>نکته محصول:</label>
+                                        <input name="tip" value="" type="text" class="form-control"
+                                               data-v-message="نکته محصول نمی‌تواند خالی باشد" required
+                                               placeholder="نکته محصول را وارد کنید" />
+                                    </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-lg-4" id="stockProduct">
@@ -194,10 +200,6 @@
                                         <label>تعداد حداکثر افزودن به سبد خرید  :(اختیاری)</label>
                                         <input type="text" name="max_purchases" class="form-control"
                                                required />
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <label>تعداد ماه گارانتی :(اختیاری)</label>
-                                        <input type="text" name="garanti" class="form-control" data-v-message="قیمت محصول نمی‌تواند خالی باشد" required />
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -306,17 +308,15 @@
                                         <option value="2">ذخیره به صورت پیشنویس</option>
                                     </select>
                                 </div>
-                                <div class="col-lg-7">
-                                    <label> محصول ویژه؟</label>
-                                    <span class="switch switch-icon">
-                                                    <label>
-                                                        <input type="checkbox" name="special"/>
-                                                        <span></span>
-                                                    </label>
-                                                </span>
+                                <div class="col-lg-2">
+                                    <label>محصول ویژه؟</label>
+                                    <select class="form-control" name="special">
+                                            <option value="1">بله</option>
+                                            <option value="2">خیر</option>
+                                    </select>
                                 </div>
                                 <div class="col-lg-2" style="margin-top: 26px;">
-                                    <button type="button" class="btn btn-primary mr-2" onclick="createProduct()">ایجاد</button>
+                                    <button type="button" class="btn btn-primary mr-2" onclick="createBlog()">ایجاد</button>
                                     <a href="http://home.test/admin/agent/management" class="btn btn-secondary">لغو</a>
                                 </div>
                             </div>
@@ -482,6 +482,8 @@
     $(document).ready(function () {
 
         $("#addExerciseBtn").click(function () {
+
+            
             const uid = Date.now() + "-" + Math.random().toString(36).substr(2, 6);
 
             let row = `

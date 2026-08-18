@@ -22,6 +22,7 @@ if (isset($_SESSION['user_sending'])){
             'description' => $_POST['description'],
             'userID' => $_SESSION['user_sending'],
         ];
+        //dd($fields);
         if (insertRecordToDatabase($table, $fields)) {
            global $cn;
            $id = $cn->lastInsertId();
@@ -30,7 +31,7 @@ if (isset($_SESSION['user_sending'])){
            $fullName = $_POST['name'] . ' ' . $_POST['family'];
            $address = "شهر: " . $getCityAndProvinceByCityId['city_name'] . "\n" . ' - ' . "استان: " . $getCityAndProvinceByCityId['province_name'] . "\n" . ' - ' .$_POST['address'];
             responseJson([
-                'text' => '  ایجاد سوال آدرس با موفقیت انجام شد',
+                'text' => '  ایجاد آدرس با موفقیت انجام شد',
                 'type' => 'success',
                 'status' => 200,
                 'fullName'=>$fullName,
@@ -43,7 +44,7 @@ if (isset($_SESSION['user_sending'])){
             ]);
         } else {
             responseJson([
-                'text' => 'درایجاد سوال متداول مشکلی پیش امده است',
+                'text' => 'درایجاد آدرس مشکلی پیش امده است',
                 'type' => 'error',
                 'status' => 400,
             ]);

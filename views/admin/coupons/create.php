@@ -133,9 +133,8 @@ $pageScript = "
             }
         })
     </script>
-    <script src='https://cdn.jsdelivr.net/npm/persian-date@latest/dist/persian-date.min.js'></script>
-
-    <script src='https://cdn.jsdelivr.net/npm/persian-datepicker@latest/dist/js/persian-datepicker.min.js'></script>
+    <script src='../../../assets/admin/js/persian-date.min.js'></script>
+    <script src='../../../assets/admin/js/persian-datepicker.min.js'></script>
     <script>
         $(document).ready(function() {
             $('#start_date').persianDatepicker({
@@ -157,6 +156,6 @@ $pageLink = "
     <link href='../../assets/admin/css/themes/layout/header/base/light.rtl.css' rel='stylesheet'
         type='text/css' />
     <link href='../../assets/admin/css/themes/layout/aside/dark.rtl.css' rel='stylesheet' type='text/css' />
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/persian-datepicker@latest/dist/css/persian-datepicker.min.css'>
+    <link rel='stylesheet' href='../../assets/admin/css/themes/persian-datepicker.min.css'>
 ";
 ?>

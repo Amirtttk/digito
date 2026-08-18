@@ -1,43 +1,238 @@
-//////////////////////////////////// product image in single product
-const mainImage = document.getElementById('mainImage');
-const zoomBox = document.getElementById('zoomBox');
-const zoomLens = document.getElementById('zoomLens');
-function isMobile() {
-    return window.innerWidth <= 768;
-}
-if (mainImage) {
-  mainImage.addEventListener('mousemove', function(event) {
-      if (isMobile()) return;
-      const { left, top, width, height } = mainImage.getBoundingClientRect();
-      const x = event.clientX - left;
-      const y = event.clientY - top;
-      const lensSize = 80;
-      const lensX = Math.max(0, Math.min(x - lensSize / 2, width - lensSize));
-      const lensY = Math.max(0, Math.min(y - lensSize / 2, height - lensSize));
-      zoomLens.style.left = `${lensX}px`;
-      zoomLens.style.top = `${lensY}px`;
-      const zoomLevel = 2;
-      zoomBox.style.backgroundImage = `url(${mainImage.src})`;
-      zoomBox.style.backgroundSize = `${width * zoomLevel}px ${height * zoomLevel}px`;
-      zoomBox.style.backgroundPosition = `-${lensX * zoomLevel}px -${lensY * zoomLevel}px`;
-      zoomLens.classList.remove('hidden');
-      zoomBox.classList.remove('hidden');
+/////////////////////////////////////// open search box + Ctrl+K shortcut
+if (document.getElementById("search-input")) {
+  const searchInput = document.getElementById("search-input");
+  const searchDropdown = document.getElementById("search-dropdown");
+  const searchContainer = document.getElementById("search-container");
+  const searchBackdrop = document.getElementById("search-backdrop");
+  const toggleTypingState = () => {
+    searchContainer.classList.toggle("is-typing", searchInput.value.trim().length > 0);
+  };
+  const focusSearchInput = () => {
+    if (window.getComputedStyle(searchInput).display === "none") return false;
+    searchInput.focus();
+    searchDropdown.classList.remove("opacity-0", "scale-95", "pointer-events-none");
+    searchBackdrop.classList.remove("opacity-0", "pointer-events-none");
+    return true;
+  };
+  searchInput.addEventListener("focus", () => {
+    searchDropdown.classList.remove("opacity-0", "scale-95", "pointer-events-none");
+    searchBackdrop.classList.remove("opacity-0", "pointer-events-none");
+  });
+  searchInput.addEventListener("input", toggleTypingState);
+  toggleTypingState();
+  document.addEventListener("click", (e) => {
+    if (searchBackdrop.contains(e.target)) {
+      searchBackdrop.classList.add("opacity-0", "pointer-events-none");
+      searchDropdown.classList.add("opacity-0", "scale-95", "pointer-events-none");
+    }
+    if (!searchContainer.contains(e.target)) {
+      searchDropdown.classList.add("opacity-0", "scale-95", "pointer-events-none");
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "k") return;
+    e.preventDefault();
+    if (focusSearchInput()) return;
+    const mobileSearchBtn = document.getElementById("mobileSearchBtn");
+    const fullSearchInput = document.getElementById("fullSearchInput");
+    if (mobileSearchBtn && fullSearchInput) {
+      mobileSearchBtn.click();
+      setTimeout(() => fullSearchInput.focus(), 320);
+    }
   });
 }
-if (mainImage) {
-  mainImage.addEventListener('mouseleave', function() {
-      zoomLens.classList.add('hidden');
-      zoomBox.classList.add('hidden');
+//////////////////////////////////////////// open and close mobile navbar
+if (document.getElementById("mobile-menu")) {
+  document.addEventListener("DOMContentLoaded", function () {
+    const menu = document.getElementById("mobile-menu");
+    const overlay = document.getElementById("overlay");
+    const openBtn = document.querySelector(".menu-mobile");
+    function openMenu() {
+      menu.classList.remove("translate-x-full");
+      overlay.classList.remove("hidden");
+      overlay.classList.add("opacity-100");
+    }
+    function closeMenu() {
+      menu.classList.add("translate-x-full");
+      overlay.classList.add("hidden");
+      overlay.classList.remove("opacity-100");
+    }
+    openBtn.addEventListener("click", openMenu);
+    overlay.addEventListener("click", closeMenu);
+  });
+  document.querySelectorAll("#mobile-menu ul li a").forEach((item) => {
+    item.addEventListener("click", () => {
+      const menu = document.getElementById("mobile-menu");
+      const overlay = document.getElementById("overlay");
+      menu.classList.add("translate-x-full");
+      overlay.classList.add("hidden");
+      overlay.classList.remove("opacity-100");
+    });
   });
 }
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+////////////////////////////// btn category desktop
+const categoriesItem = document.querySelectorAll(".category-item");
+const subcategories = document.querySelectorAll(".subcategory-item");
+categoriesItem.forEach(cat => {
+  cat.addEventListener("mouseenter", () => {
+    const category = cat.getAttribute("data-category");
+    subcategories.forEach(sub => {
+      sub.classList.add("hidden");
+      if (sub.getAttribute("data-parent") === category) {
+        sub.classList.remove("hidden");
+      }
+    });
+  });
+});
+/////////////////////////////////////// Quantity input
+const minusIcon = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path class="stroke-zinc-600" d="M6 12H18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+const trashIcon = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path class="stroke-red-500" fill-rule="evenodd" clip-rule="evenodd" d="M15.7628 9H7.63719C7.18864 9 6.82501 9.37295 6.82501 9.833V16.5C6.82501 17.8807 7.91632 19 9.26251 19H14.1375C14.784 19 15.404 18.7366 15.8611 18.2678C16.3182 17.7989 16.575 17.163 16.575 16.5V9.833C16.575 9.37295 16.2114 9 15.7628 9Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="stroke-red-500" fill-rule="evenodd" clip-rule="evenodd" d="M14.625 7L13.9191 5.553C13.7541 5.21427 13.4167 5.0002 13.0475 5H10.3526C9.98338 5.0002 9.64596 5.21427 9.48092 5.553L8.77502 7H14.625Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="fill-red-500" d="M10.8247 12.333C10.8247 11.9188 10.4889 11.583 10.0747 11.583C9.66047 11.583 9.32469 11.9188 9.32469 12.333H10.8247ZM9.32469 15.666C9.32469 16.0802 9.66047 16.416 10.0747 16.416C10.4889 16.416 10.8247 16.0802 10.8247 15.666H9.32469ZM14.0753 12.333C14.0753 11.9188 13.7396 11.583 13.3253 11.583C12.9111 11.583 12.5753 11.9188 12.5753 12.333H14.0753ZM12.5753 15.666C12.5753 16.0802 12.9111 16.416 13.3253 16.416C13.7396 16.416 14.0753 16.0802 14.0753 15.666H12.5753ZM14.625 6.25C14.2108 6.25 13.875 6.58579 13.875 7C13.875 7.41421 14.2108 7.75 14.625 7.75V6.25ZM16.575 7.75C16.9892 7.75 17.325 7.41421 17.325 7C17.325 6.58579 16.9892 6.25 16.575 6.25V7.75ZM8.77501 7.75C9.18923 7.75 9.52501 7.41421 9.52501 7C9.52501 6.58579 9.18923 6.25 8.77501 6.25V7.75ZM6.82501 6.25C6.4108 6.25 6.07501 6.58579 6.07501 7C6.07501 7.41421 6.4108 7.75 6.82501 7.75V6.25ZM9.32469 12.333V15.666H10.8247V12.333H9.32469ZM12.5753 12.333V15.666H14.0753V12.333H12.5753ZM14.625 7.75H16.575V6.25H14.625V7.75ZM8.77501 6.25H6.82501V7.75H8.77501V6.25Z"/>
+</svg>`;
+function updateDecrementIcon(button, value) {
+    button.innerHTML = value <= 1 ? trashIcon : minusIcon;
 }
-function changeImage(element) {
-    mainImage.src = element.src;
+document.querySelectorAll(".quantity-counter").forEach(counter => {
+    const input = counter.querySelector('input[type="number"]');
+    const incrementBtn = counter.querySelector('[data-action="increment"]');
+    const decrementBtn = counter.querySelector('[data-action="decrement"]');
+    updateDecrementIcon(decrementBtn, Number(input.value));
+    incrementBtn.addEventListener("click", () => {
+        let value = Number(input.value) + 1;
+        input.value = value;
+        updateDecrementIcon(decrementBtn, value);
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    decrementBtn.addEventListener("click", () => {
+        let value = Number(input.value);
+        if (value > 1) {
+            value--;
+            input.value = value;
+            updateDecrementIcon(decrementBtn, value);
+
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        } else {
+            // counter.closest('.cart-item').remove();
+            console.log("Remove product");
+        }
+    });
+});
+//////////////////////////////////////////// open and close mobile navbar
+document.addEventListener("DOMContentLoaded", function () {
+  const menu = document.getElementById("mobile-menu");
+  const overlay = document.getElementById("overlay");
+  const openBtn = document.querySelector(".menu-mobile");
+  function openMenu() {
+    menu.classList.remove("translate-x-full");
+    overlay.classList.remove("hidden");
+    overlay.classList.add("opacity-100");
+  }
+  function closeMenu() {
+    menu.classList.add("translate-x-full");
+    overlay.classList.add("hidden");
+    overlay.classList.remove("opacity-100");
+  }
+  if (openBtn){
+    openBtn.addEventListener("click", openMenu);
+    overlay.addEventListener("click", closeMenu);
+  }
+});
+//////////////////////////////////////////// open and close menu/submenu mobile
+document.addEventListener("DOMContentLoaded", function () {
+  const menuToggles = document.querySelectorAll(".menu-toggle");
+  menuToggles.forEach((toggle) => {
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const submenu = this.nextElementSibling ||
+        this.parentElement?.nextElementSibling ||
+        this.closest("li")?.querySelector(".submenu");
+      const icon = this.querySelector("img") || this.querySelector("svg");
+      if (!submenu) return;
+      if (submenu.classList.contains("hidden")) {
+        submenu.classList.remove("hidden");
+        if (icon) icon.classList.add("rotate-180");
+      } else {
+        submenu.classList.add("hidden");
+        if (icon) icon.classList.remove("rotate-180");
+      }
+    });
+  });
+});
+/////////////////////////////////////// show and hide header desktop in scroll
+if (document.getElementById("stickyDiv")) {
+  const stickyDiv = document.getElementById("stickyDiv");
+  const placeholder1 = document.getElementById("stickyPlaceholder");
+  const stickySub = document.getElementById("stickySub");
+  const placeholder2 = document.getElementById("stickySubPlaceholder");
+  const stickyTop = stickyDiv.offsetTop;
+  const subTop = stickySub.offsetTop;
+  let lastScroll = window.scrollY;
+  let lastScrolled = 0;
+    window.addEventListener("scroll", () => {
+      let current = window.scrollY;
+      if (current > lastScrolled) {
+        stickySub.style.top = "0";
+      } else {
+        stickySub.style.top = "80px";
+      }
+      lastScrolled = current;
+    });
+  window.addEventListener("scroll", () => {
+    const sc = window.scrollY;
+    if (sc >= stickyTop) {
+      stickyDiv.classList.add("fixed", "top-0", "left-0", "right-0", "w-full");
+      placeholder1.style.height = stickyDiv.offsetHeight + "px";
+    } else {
+      stickyDiv.classList.remove("fixed", "top-0", "left-0", "right-0", "w-full");
+      placeholder1.style.height = "0px";
+    }
+    const stickyDivHeight = stickyDiv.offsetHeight;
+    if (sc >= subTop - stickyDivHeight) {
+      stickySub.classList.add("fixed", "left-0", "right-0", "w-full");
+      placeholder2.style.height = stickySub.offsetHeight + "px";
+    } else {
+      stickySub.classList.remove("fixed", "left-0", "right-0", "w-full");
+      placeholder2.style.height = "0px";
+    }
+    lastScroll = sc;
+  });
 }
-//////////////////////////////// Quantity input
-////////////////////////////////////////// modal login register
+/////////////////////////////////////// verify 6 code
+if (document.querySelector('input.code-input')) {
+  const inputElements = [...document.querySelectorAll('input.code-input')]
+  if (inputElements) {
+    window.addEventListener("load", () => inputElements[0].focus());
+    inputElements.forEach((ele,index)=>{
+      ele.addEventListener('keydown',(e)=>{
+        if(e.keyCode === 8 && e.target.value==='') inputElements[Math.max(0,index-1)].focus()
+      })
+      ele.addEventListener('input',(e)=>{
+        const [first,...rest] = e.target.value
+        e.target.value = first ?? ''
+        const lastInputBox = index===inputElements.length-1
+        const didInsertContent = first!==undefined
+        if(didInsertContent && !lastInputBox) {
+          inputElements[index+1].focus()
+          inputElements[index+1].value = rest.join('')
+          inputElements[index+1].dispatchEvent(new Event('input'))
+        }
+      })
+    })
+  }
+  function onSubmit(e){
+    e.preventDefault()
+    const code = inputElements.map(({value})=>value).join('')
+    console.log(code)
+  }
+}
+////////////////////////////////////////// modal
 document.querySelectorAll(".open-modal").forEach((button) => {
   button.addEventListener("click", () => {
     const modalId = button.getAttribute("data-modal");
@@ -70,285 +265,7 @@ document.querySelectorAll(".modal").forEach((modal) => {
     }
   });
 });
-///////////////////////////////////////// verify 6 code
-const inputElements = [...document.querySelectorAll('input.code-input')]
-if (inputElements) {
-  // window.addEventListener("load", () => inputElements[0].focus());
-  inputElements.forEach((ele,index)=>{
-    ele.addEventListener('keydown',(e)=>{
-      if(e.keyCode === 8 && e.target.value==='') inputElements[Math.max(0,index-1)].focus()
-    })
-    ele.addEventListener('input',(e)=>{
-      const [first,...rest] = e.target.value
-      e.target.value = first ?? ''
-      const lastInputBox = index===inputElements.length-1
-      const didInsertContent = first!==undefined
-      if(didInsertContent && !lastInputBox) {
-        inputElements[index+1].focus()
-        inputElements[index+1].value = rest.join('')
-        inputElements[index+1].dispatchEvent(new Event('input'))
-      }
-    })
-  })
-}
-function onSubmit(e){
-  e.preventDefault()
-  const code = inputElements.map(({value})=>value).join('')
-  console.log(code)
-}
-///////////////////////////////////////// category header desktop
-const categories = document.querySelectorAll(".category-item");
-  const subcategories = document.querySelectorAll(".subcategory-item");
-
-  categories.forEach(cat => {
-    cat.addEventListener("mouseenter", () => {
-      const category = cat.getAttribute("data-category");
-      subcategories.forEach(sub => {
-        sub.classList.add("hidden");
-        if (sub.getAttribute("data-parent") === category) {
-          sub.classList.remove("hidden");
-        }
-      });
-    });
-  });
-//////////////////////////////////////////// open and close mobile navbar
-document.addEventListener("DOMContentLoaded", function () {
-  const menu = document.getElementById("mobile-menu");
-  const overlay = document.getElementById("overlay");
-  const openBtn = document.querySelector(".menu-mobile");
-  function openMenu() {
-    menu.classList.remove("translate-x-full");
-    overlay.classList.remove("hidden");
-    overlay.classList.add("opacity-100");
-  }
-  function closeMenu() {
-    menu.classList.add("translate-x-full");
-    overlay.classList.add("hidden");
-    overlay.classList.remove("opacity-100");
-  }
-  if (openBtn){
-    openBtn.addEventListener("click", openMenu);
-    overlay.addEventListener("click", closeMenu);
-  }
-});
-//////////////////////////////////////////// open and close menu/submenu mobile
-document.addEventListener("DOMContentLoaded", function () {
-  const menuToggles = document.querySelectorAll(".menu-toggle");
-  menuToggles.forEach((toggle) => {
-    toggle.addEventListener("click", function () {
-      const submenu = this.nextElementSibling;
-      const icon = this.querySelector("img");
-      if (submenu.classList.contains("hidden")) {
-        submenu.classList.remove("hidden");
-        icon.classList.add("rotate-180");
-      } else {
-        submenu.classList.add("hidden");
-        icon.classList.remove("rotate-180");
-      }
-    });
-  });
-});
-/////////////////////////////////////////// progressBar
-window.addEventListener("scroll", function () {
-  let scrollTop = document.documentElement.scrollTop;
-  let scrollHeight =
-    document.documentElement.scrollHeight -
-    document.documentElement.clientHeight;
-  let scrollPercentage = (scrollTop / scrollHeight) * 100;
-  document.getElementById("progressBar").style.width = scrollPercentage + "%";
-});
-//////////////////////////////// loading
-window.addEventListener("load", function () {
-  if (document.getElementById("loading")){
-    const loadingScreen = document.getElementById("loading");
-    setTimeout(() => {
-      loadingScreen.classList.add("opacity-0");
-    }, 500);
-    setTimeout(() => {
-      loadingScreen.classList.add("hidden");
-    }, 1000);
-  }
-
-});
-//////////////////////////////// btn go to top
-if (document.getElementById("btn-back-to-top")){
-  document.getElementById("btn-back-to-top").addEventListener("click", function() {
-    window.scrollTo({
-      top: 0,
-    });
-  });
-}
-/////////////////////////////// fixed btn social media
-if (document.getElementById("CTA")){
-  const blurOverlay = document.getElementById("blurOverlay");
-  const btn = document.getElementById("CTA");
-  const popup = document.getElementById("popup");
-  const iconOpen = document.getElementById("icon-open");
-  const iconClose = document.getElementById("icon-close");
-  let isOpen = false;
-  function showElement(el) {
-    el.classList.remove("pointer-events-none");
-    requestAnimationFrame(() => {
-      el.classList.remove("opacity-0", "translate-y-5");
-      el.classList.add("opacity-100", "translate-y-0");
-    });
-  }
-
-  function hideElement(el) {
-    el.classList.remove("opacity-100", "translate-y-0");
-    el.classList.add("opacity-0", "translate-y-5");
-    setTimeout(() => {
-      el.classList.add("pointer-events-none");
-    }, 300);
-  }
-  function showOverlay() {
-    blurOverlay.classList.remove("pointer-events-none");
-    requestAnimationFrame(() => {
-      blurOverlay.classList.remove("opacity-0");
-      blurOverlay.classList.add("opacity-100");
-    });
-  }
-
-  function hideOverlay() {
-    blurOverlay.classList.remove("opacity-100");
-    blurOverlay.classList.add("opacity-0");
-    setTimeout(() => {
-      blurOverlay.classList.add("pointer-events-none");
-    }, 300);
-  }
-  btn.addEventListener("click", () => {
-    isOpen = !isOpen;
-    if (isOpen) {
-      showElement(popup);
-      showOverlay();
-      iconOpen.classList.remove("opacity-100");
-      iconOpen.classList.add("opacity-0");
-      setTimeout(() => {
-        iconOpen.classList.add("hidden");
-        iconClose.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          iconClose.classList.remove("opacity-0");
-          iconClose.classList.add("opacity-100");
-        });
-      }, 180);
-    } else {
-      hideElement(popup);
-      hideOverlay();
-      iconClose.classList.remove("opacity-100");
-      iconClose.classList.add("opacity-0");
-      setTimeout(() => {
-        iconClose.classList.add("hidden");
-        iconOpen.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          iconOpen.classList.remove("opacity-0");
-          iconOpen.classList.add("opacity-100");
-        });
-      }, 180);
-    }
-  });
-  document.addEventListener("DOMContentLoaded", () => {
-    iconOpen.classList.remove("hidden");
-    iconOpen.classList.add("opacity-100");
-  });
-  blurOverlay.addEventListener("click", () => {
-    if(isOpen){
-      isOpen = false;
-      hideElement(popup);
-      hideOverlay();
-      iconClose.classList.remove("opacity-100");
-      iconClose.classList.add("opacity-0");
-      setTimeout(() => {
-        iconClose.classList.add("hidden");
-        iconOpen.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          iconOpen.classList.remove("opacity-0");
-          iconOpen.classList.add("opacity-100");
-        });
-      }, 180);
-    }
-  });
-}
-/////////////////////////////// faq
-function toggleFAQ(id) {
-  const content = document.getElementById(`faq${id}`);
-  const icon = content.previousElementSibling.querySelector('.icon');
-  if (content.classList.contains('open')) {
-      content.classList.remove('open');
-      icon.textContent = '+';
-  } else {
-      content.classList.add('open');
-      icon.textContent = '-';
-  }
-}
-/////////////////////////////// rules
-function toggleRules(id) {
-  const content = document.getElementById(`rules${id}`);
-  const icon = content.previousElementSibling.querySelector('.icon');
-  if (content.classList.contains('open')) {
-      content.classList.remove('open');
-      icon.textContent = '+';
-  } else {
-      content.classList.add('open');
-      icon.textContent = '-';
-  }
-}
-/////////////////////////////// price filter
-let priceFilter = document.querySelectorAll("#shop-price-slider"),
-  priceMinFilter = document.querySelectorAll("#shop-price-slider-min"),
-  priceMaxFilter = document.querySelectorAll("#shop-price-slider-max");
-  priceFilter.forEach((e) => {
-    noUiSlider.create(e, {
-      cssPrefix: "range-slider-",
-      start: [0, 1e8],
-      direction: "rtl",
-      margin: 1,
-      connect: !0,
-      range: { min: 0, max: 1e8 },
-      format: {
-        to: function (e) {
-          return e.toLocaleString("en-US", {
-            style: "decimal",
-            maximumFractionDigits: 0,
-          });
-        },
-        from: function (e) {
-          return parseFloat(e.replace(/,/g, ""));
-        },
-      },
-    }),
-      e.noUiSlider.on("update", function (e, t) {
-        t
-          ? priceMaxFilter.forEach((a) => {
-              a.innerHTML = e[t];
-            })
-          : priceMinFilter.forEach((a) => {
-              a.innerHTML = e[t];
-            });
-      });
-  })
-/////////////////////////////// off code show
-if (document.getElementById("offCodeShow")) {
-  function offCodeShow() {
-    document.getElementById("offCodeButton").style.display = "block";
-  }
-}
-/////////////////////////////// copy link page to clipboard
-document.querySelectorAll('a[data-copy]').forEach(link => {
-  link.addEventListener('click', async (e) => {
-    e.preventDefault(); // از رفتن به href جلوگیری می‌کنه
-
-    const text = link.getAttribute('data-copy');
-
-    try {
-      await navigator.clipboard.writeText(text);
-
-      console.log("Copied:", text);
-    } catch (err) {
-      console.error("Copy failed:", err);
-    }
-  });
-});
-//////////////////////////////////// open filter in search products
+/////////////////////////////////////// open filter in search products
 if (document.getElementById("mobile-filter")) {
   const filters = document.getElementById("mobile-filter");
   const openFilter = document.querySelector(".filter-mobile");
@@ -362,7 +279,414 @@ if (document.getElementById("mobile-filter")) {
   openFilter.addEventListener("click", openMenu);
   closeFilter.addEventListener("click", closeMenu);
 }
+/////////////////////////////////////// price filter
+if (document.getElementById('priceSlider')) {
+  const slider = document.getElementById('priceSlider');
+  const minLabel = document.getElementById('minLabel');
+  const maxLabel = document.getElementById('maxLabel');
+  noUiSlider.create(slider, {
+    start: [0, 5000000],
+    connect: true,
+    direction: 'rtl',
+    range: {
+      min: 0,
+      max: 10000000
+    },
+    step: 1000,
+    format: {
+      to: v => Math.round(v),
+      from: v => Number(v)
+    }
+  });
+  slider.noUiSlider.on('update', (values) => {
+    const nums = values.map(Number);
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    minLabel.textContent = `${min.toLocaleString()} تومان`;
+    maxLabel.textContent = `${max.toLocaleString()} تومان`;
+  });
+}
+/////////////////////////////////////// copy link page to clipboard
+if(document.getElementById("copyBtn")){
+  const copyBtn = document.getElementById("copyBtn");
+  const copyTarget = document.getElementById("copyTarget");
+  const copyIcon = document.getElementById("copyIcon");
+  const copyText = document.getElementById("copyText");
+  const defaultIcon = copyIcon.innerHTML;
+  const successIcon = `
+    <path d="M5 13l4 4L19 7"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round" />
+  `;
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(copyTarget.innerText.trim());
+      copyIcon.innerHTML = successIcon;
+      copyIcon.classList.add("text-green-600");
+      copyText.innerText = "کپی شد";
+      setTimeout(() => {
+        copyIcon.innerHTML = defaultIcon;
+        copyIcon.classList.remove("text-green-600");
+        copyText.innerText = "کپی کردن لینک";
+        }, 3000);
+    } catch (err) {
+    }
+  });
+}
+/////////////////////////////////////// product image in single product
+if (document.getElementById('mainImage')) {
+  const mainImage = document.getElementById('mainImage');
+  const zoomBox = document.getElementById('zoomBox');
+  const zoomLens = document.getElementById('zoomLens');
+  const wrapper = document.getElementById('imageWrapper');
+  
+  function isMobile() {
+    return window.innerWidth <= 768;
+  }
+  
+  mainImage.addEventListener('mousemove', (e) => {
+    if (isMobile()) return;
+  
+    const rect = wrapper.getBoundingClientRect();
+    const lensSize = zoomLens.offsetWidth;
+    const zoomLevel = 2;
+  
+    let x = e.clientX - rect.left - lensSize / 2;
+    let y = e.clientY - rect.top - lensSize / 2;
+  
+    x = Math.max(0, Math.min(x, rect.width - lensSize));
+    y = Math.max(0, Math.min(y, rect.height - lensSize));
+  
+    zoomLens.style.left = x + 'px';
+    zoomLens.style.top = y + 'px';
+  
+    zoomBox.style.backgroundImage = `url(${mainImage.src})`;
+    zoomBox.style.backgroundSize =
+      `${rect.width * zoomLevel}px ${rect.height * zoomLevel}px`;
+    zoomBox.style.backgroundPosition =
+      `-${x * zoomLevel}px -${y * zoomLevel}px`;
+  
+    zoomLens.classList.remove('hidden');
+    zoomBox.classList.remove('hidden');
+  });
+  
+  mainImage.addEventListener('mouseleave', () => {
+    zoomLens.classList.add('hidden');
+    zoomBox.classList.add('hidden');
+  });
+  
+  function changeImage(el) {
+    mainImage.src = el.src;
+  }
+  
+}
+/////////////////////////////////////// Quantity input single product
+if(document.getElementById("addToCartBtnUnique")){
+  document.querySelectorAll('[id="addToCartBtnUnique"]').forEach((addToCartBtn) => {
+    const wrapper = addToCartBtn.parentElement;
+    const counterWrapper = wrapper.querySelector('#counterWrapperUnique');
+    const incrementBtn  = wrapper.querySelector('#incrementBtnUnique');
+    const decrementBtn  = wrapper.querySelector('#decrementBtnUnique');
+    const counterInput  = wrapper.querySelector('#counterInputUnique');
+  
+    let count = 1;
+  
+    addToCartBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      addToCartBtn.classList.add("hidden");
+      counterWrapper.classList.remove("hidden");
+      count = 1;
+      counterInput.value = count;
+    });
+  
+    incrementBtn.addEventListener("click", function () {
+      count++;
+      counterInput.value = count;
+    });
+  
+    decrementBtn.addEventListener("click", function () {
+      count--;
+      if (count < 1) {
+        counterWrapper.classList.add("hidden");
+        addToCartBtn.classList.remove("hidden");
+        count = 1;
+      }
+      counterInput.value = count;
+    });
+  });
+}
+/////////////////////////////////////// star rating
+const stars = document.querySelectorAll('#rating .star');
+  const ratingValue = document.getElementById('ratingValue');
+  let currentRating = 0;
+  function updateStars(value) {
+    stars.forEach(s => {
+      if (parseInt(s.dataset.value) <= value) {
+        s.classList.remove('text-gray-300');
+        s.classList.add('text-yellow-400');
+      } else {
+        s.classList.remove('text-yellow-400');
+        s.classList.add('text-gray-300');
+      }
+    });
+  }
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      currentRating = parseInt(star.dataset.value);
+      ratingValue.textContent = currentRating;
+      updateStars(currentRating);
+    });
+    star.addEventListener('mouseenter', () => {
+      const hoverValue = parseInt(star.dataset.value);
+      updateStars(hoverValue);
+    });
+    star.addEventListener('mouseleave', () => {
+      updateStars(currentRating);
+    });
+  });
+/////////////////////////////////////////////// showMoreText
+function showMoreText() {
+  document.getElementById("moreText").style.display = "block";
+}
+/////////////////////////////////////// tabs
+document.querySelectorAll('.dt-tabs').forEach(wrapper => {
+  const buttons = wrapper.querySelectorAll('.dt-tab-btn');
+  const panels = wrapper.querySelectorAll('.dt-tab-panel');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.dtTab;
+
+      // reset buttons
+      buttons.forEach(b => b.removeAttribute('data-active'));
+      btn.setAttribute('data-active', 'true');
+
+      // reset panels
+      panels.forEach(p => p.classList.add('hidden'));
+      wrapper
+        .querySelector(`[data-dt-panel="${key}"]`)
+        .classList.remove('hidden');
+    });
+  });
+});
+/////////////////////////////////////// animated tabs
+if (document.querySelector(".tab_reel")) {
+    const reel = document.querySelector(".tab_reel");
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(item => item.classList.remove("activeTabPanel"));
+            tab.classList.add("activeTabPanel");
+            reel.style.transform = `translateX(${index * 50}%)`;
+        });
+    });
+}
+/////////////////////////////////////// showMoreInfo
+function showMoreInfo(event) {
+    event.preventDefault();
+    const moreText = document.getElementById("moreText");
+    moreText.style.overflow = "hidden";
+    moreText.style.maxHeight = "0";
+    moreText.style.opacity = "0";
+    moreText.style.transition = "max-height .5s ease, opacity .5s ease";
+    requestAnimationFrame(() => {
+        moreText.style.maxHeight = moreText.scrollHeight + "px";
+        moreText.style.opacity = "1";
+    });
+    setTimeout(() => {
+        moreText.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, 150);
+}
+///////////////////////////////// show and hide box reservation
+if (document.getElementById("reserveType")) {
+  const reserveType = document.getElementById("reserveType");
+  const inBox = document.getElementById("inBox");
+  const phoBox = document.getElementById("phoBox");
+  function changeReserveType() {
+    if (reserveType.value === "in") {
+        inBox.classList.remove("hidden");
+        phoBox.classList.add("hidden");
+    } else {
+        phoBox.classList.remove("hidden");
+        inBox.classList.add("hidden");
+    }
+  }
+  reserveType.addEventListener("change", changeReserveType);
+  changeReserveType();
+}
+////////////////////////////////// form steps
+const steps = document.querySelectorAll(".step");
+const indicators = document.querySelectorAll(".step-item");
+
+let currentStep = 0;
+
+function showStep(index){
+
+    steps.forEach((step,i)=>{
+        step.classList.toggle("active", i===index);
+    });
+
+    indicators.forEach((item,i)=>{
+        item.classList.toggle("active", i===index);
+    });
+
+}
+
+document.querySelectorAll(".nextBtn").forEach(btn=>{
+
+    btn.addEventListener("click",()=>{
+
+        if(currentStep < steps.length-1){
+            currentStep++;
+            showStep(currentStep);
+        }
+
+    });
+
+});
+
+document.querySelectorAll(".prevBtn").forEach(btn=>{
+
+    btn.addEventListener("click",()=>{
+
+        if(currentStep > 0){
+            currentStep--;
+            showStep(currentStep);
+        }
+
+    });
+
+});
+
+showStep(currentStep);
+//////////////////////////////////// chart dashboard Details Info
+if (document.getElementById('salesChart')) {
+  const ctx = document.getElementById('salesChart');
+  
+  new Chart(ctx,{
+      type:'line',
+  
+      data:{
+          labels:[
+              '1405/05/02',
+              '1405/05/04',
+              '1405/05/08',
+              '1405/05/14',
+              '1405/05/29',
+              '1405/05/02'
+          ],
+  
+          datasets:[{
+  
+              label:'کیلوگرم',
+  
+              data:[
+                  65,
+                  67,
+                  69,
+                  75,
+                  76,
+                  79
+              ],
+  
+              borderColor:'#3B82F6',
+  
+              borderWidth:3,
+  
+              tension:.45,
+  
+              fill:true,
+  
+              backgroundColor:(context)=>{
+  
+                  const chart=context.chart;
+                  const {ctx,chartArea}=chart;
+  
+                  if(!chartArea) return null;
+  
+                  const gradient=ctx.createLinearGradient(
+                      0,
+                      chartArea.top,
+                      0,
+                      chartArea.bottom
+                  );
+  
+                  gradient.addColorStop(0,'rgba(59,130,246,.30)');
+                  gradient.addColorStop(1,'rgba(59,130,246,0)');
+  
+                  return gradient;
+              },
+  
+              pointRadius:5,
+  
+              pointHoverRadius:7,
+  
+              pointBackgroundColor:'#fff',
+  
+              pointBorderColor:'#3B82F6',
+  
+              pointBorderWidth:3
+  
+          }]
+      },
+  
+      options:{
+  
+          responsive:true,
+  
+          maintainAspectRatio:false,
+  
+          plugins:{
+              legend:{
+                  display:false
+              }
+          },
+  
+          interaction:{
+              intersect:false,
+              mode:'index'
+          },
+  
+          scales:{
+  
+              x:{
+                  grid:{
+                      display:false
+                  },
+                  ticks:{
+                      color:'#777',
+                      font:{
+                          size:13
+                      }
+                  }
+              },
+  
+              y:{
+                  beginAtZero:true,
+  
+                  ticks:{
+                      color:'#777'
+                  },
+  
+                  grid:{
+                      color:'rgba(0,0,0,.05)',
+                      drawBorder:false
+                  }
+              }
+  
+          }
+  
+      }
+  
+  });
+}
 let domain = window.location.origin + "/";
+
 function createContactus() {
   let nameAndFamily = $('input[name="nameAndFamily"]').val(),
       mobile = $('input[name="mobile"]').val(),
@@ -396,234 +720,17 @@ function createContactus() {
     },
   });
 }
-function checkMobile() {
-  let mobile = document.getElementById("mobile").value;
-  $.ajax({
-    url: `${domain}requests/login/checkMobile.php`,
-    type: "POST",
-    dataType: "json",
-    data: {
-      mobile,
-    },
-    success: function (response) {
-      if (response.status == 200) {
-        document
-            .getElementById("showError")
-            .classList.replace("text-danger", "text-success");
-        document.getElementById("showError").innerHTML = "کمی صبر کنید ...";
-
-        setTimeout(() => {
-          document.getElementById("formNowLogin").style.display = "none";
-          document.getElementById("formNewLogin").style.display = "block";
-
-          document.getElementById("showCode").innerHTML = response.code;
-          timers(
-              120,
-              document.getElementById("nowTime"),
-              document.getElementById("spanTimer")
-          );
-        }, 1000);
-      } else if (response.status == 400) {
-        document
-            .getElementById("showError")
-            .classList.replace("text-success", "text-danger");
-        document.getElementById("showError").innerHTML = response.text;
-      } else if (response.status == 500) {
-        document
-            .getElementById("showError")
-            .classList.replace("text-success", "text-danger");
-        document.getElementById("showError").innerHTML = response.text;
-        document
-            .getElementById("btnCheckMobile")
-            .setAttribute("disabled", true);
-        document.getElementById("btnCheckMobile").removeAttribute("onclick");
-        document.getElementById("btnCheckMobile").removeAttribute("id");
-      } else {
-        document
-            .getElementById("showError")
-            .classList.replace("text-success", "text-danger");
-        document.getElementById("showError").innerHTML = response.text;
-      }
-    },
-  });
-}
-function checkCode() {
-  let codeInputs = document.getElementsByName("code[]");
-  let codeUser = Array.from(codeInputs).map(input => input.value).join('');
-  if (codeUser.length !== 6) {
-    document.getElementById("showError2").classList.replace("text-success", "text-danger");
-    document.getElementById("showError2").innerHTML = "لطفا تمام 6 رقم کد را وارد کنید.";
-    return;
-  }
-  $.ajax({
-    url: `${domain}requests/login/checkCode.php`,
-    type: "POST",
-    dataType: "json",
-    data: {
-      codeUser,
-    },
-    success: function (response) {
-      if (response.status == 200) {
-        document
-            .getElementById("showError2")
-            .classList.replace("text-danger", "text-success");
-        document.getElementById("showError2").innerHTML = "کمی صبر کنید ...";
-        setTimeout(() => {
-          location.replace(response.url);
-        }, 1500);
-      } else {
-        document
-            .getElementById("showError2")
-            .classList.replace("text-success", "text-danger");
-        document.getElementById("showError2").innerHTML = response.text;
-      }
-    },
-  });
-}
-function autoClickForLogin() {
-  if (document.getElementById("codeUser").value.length == 6)
-    document.getElementById("btnSubmitCode").click();
-}
-function timers(counter, element, element2) {
-  let timer = setInterval(function () {
-    counter--;
-    element.innerHTML = counter;
-    if (counter == 0) {
-      clearInterval(timer);
-      element2.innerHTML =
-          '<a id="btnResend" style="cursor : pointer" onclick="resend()">درخواست مجدد کد</a>';
-      $.ajax({
-        url: "requests/login/unsetCode.php",
-        type: "POST",
-        dataType: "json",
-        data: {},
-        success: function (response) {
-          if (response.status == 200) {
-            document.getElementById("btnResend").remove();
-            document.getElementById(
-                "spanTimer"
-            ).innerHTML = `کد ارسالی تا <span id="nowTime"></span> ثانیه دیگر منقضی میشود`;
-            timers(
-                120,
-                document.getElementById("nowTime"),
-                document.getElementById("spanTimer")
-            );
-          }
-        },
-      });
-    }
-  }, 1000);
-}
-function logout() {
-  $.ajax({
-    url: `${domain}requests/user/logout.php`,
-    type: "POST",
-    data: {},
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        location.replace("/");
-      }
-    },
-  });
-}
-function loadCitiesByProvince() {
-  let provinceId = $('#province-select').val();
-  let citySelect = document.getElementById('city-select');
-  let getErrors = document.getElementById('getErrors1');  // فرض کردم بخوای خطاها رو نشون بدی
-
-  if (!provinceId) {
-    citySelect.innerHTML = '<option value="">ابتدا استان را انتخاب کنید</option>';
-    citySelect.disabled = true;
-    return;
-  }
-
-  $.ajax({
-    url: `${domain}requests/address/get_cities.php`,
-    type: "GET",
-    data: { province_id: provinceId },
-    success: function(response) {
-      // فرض می‌کنیم سرور JSON برمی‌گردونه
-      let data;
-      try {
-        data = JSON.parse(response);
-      } catch (e) {
-        getErrors.innerHTML = "خطا در بارگذاری داده‌ها";
-        citySelect.innerHTML = '<option value="">خطا در بارگذاری شهرها</option>';
-        citySelect.disabled = true;
-        return;
-      }
-
-      if (data.length > 0) {
-        getErrors.innerHTML = "";
-        citySelect.innerHTML = "";
-        data.forEach(city => {
-          let option = document.createElement('option');
-          option.value = city.id;
-          option.textContent = city.name;
-          citySelect.appendChild(option);
-        });
-        citySelect.disabled = false;
-      } else {
-        citySelect.innerHTML = '<option value="">شهر یافت نشد</option>';
-        citySelect.disabled = true;
-      }
-    },
-    error: function() {
-      getErrors.innerHTML = "خطا در برقراری ارتباط با سرور";
-      citySelect.innerHTML = '<option value="">خطا در بارگذاری شهرها</option>';
-      citySelect.disabled = true;
-    }
-  });
-}
-function delteAddress(Id) {
-  $.ajax({
-    url: `${domain}requests/address/delete.php`,
-    type: "POST",
-    data: {
-      Id,
-    },
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        if(response.len == 0){
-          document.getElementById('deleteAddres').innerHTML=` <img src="./../../assets/user/image/address.svg" alt="">
-                      <p class="fs-8">هنوز هیچ آدرسی ثبت نکرده اید.</p>`;
-        }
-        document.getElementById('deleteAddres'+Id).style.display="none";
-      } else {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
-function createAddress() {
-  let name = $('input[name="name"]').val(),
-      family = $('input[name="family"]').val(),
-      city_id = $('select[name="city_id"]').val(),
-      address = $('input[name="address"]').val(),
-      mobile = $('input[name="mobile"]').val(),
-      post_code = $('input[name="post_code"]').val(),
-      description = $('textarea[name="description"]').val(),
+function createCommet(product) {
+  let text = $('textarea[name="text"]').val(),
+      nameAndFamily = $('input[name="nameAndFamily"]').val(),
       getErrors = document.getElementById("getErrors");
   $.ajax({
-    url: `${domain}requests/address/create.php`,
+    url: `${domain}requests/comment/create.php`,
     type: "POST",
     data: {
-      name,
-      family,
-      city_id,
-      address,
-      mobile,
-      post_code,
-      description,
+      text,
+      nameAndFamily,
+      product
     },
     success: function (response) {
       response = JSON.parse(response);
@@ -633,677 +740,15 @@ function createAddress() {
           icon: response.type,
           title: response.text,
         });
-        document.getElementById('addAddressBox').innerHTML+=`
-        <div id="deleteAddres${response.id}" class="border border-zinc-300 rounded-md">
-                <div class="border-b border-b-zinc-400 p-3 text-zinc-800 text-sm flex justify-between items-center">
-                  ${response.city}
-                </div>
-                <div class="px-5 py-4 text-zinc-600 fill-zinc-600 space-y-4 text-sm">
-                    <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="" viewBox="0 0 256 256"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path></svg>
-                       ${response.address}
-                    </div>
-                    <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="" viewBox="0 0 256 256"><path d="M228.44,89.34l-96-64a8,8,0,0,0-8.88,0l-96,64A8,8,0,0,0,24,96V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V96A8,8,0,0,0,228.44,89.34ZM96.72,152,40,192V111.53Zm16.37,8h29.82l56.63,40H56.46Zm46.19-8L216,111.53V192ZM128,41.61l81.91,54.61-67,47.78H113.11l-67-47.78Z"></path></svg>
-                         ${response.post_code}
-                    </div>
-                    <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="" viewBox="0 0 256 256"><path d="M222.37,158.46l-47.11-21.11-.13-.06a16,16,0,0,0-15.17,1.4,8.12,8.12,0,0,0-.75.56L134.87,160c-15.42-7.49-31.34-23.29-38.83-38.51l20.78-24.71c.2-.25.39-.5.57-.77a16,16,0,0,0,1.32-15.06l0-.12L97.54,33.64a16,16,0,0,0-16.62-9.52A56.26,56.26,0,0,0,32,80c0,79.4,64.6,144,144,144a56.26,56.26,0,0,0,55.88-48.92A16,16,0,0,0,222.37,158.46ZM176,208A128.14,128.14,0,0,1,48,80,40.2,40.2,0,0,1,82.87,40a.61.61,0,0,0,0,.12l21,47L83.2,111.86a6.13,6.13,0,0,0-.57.77,16,16,0,0,0-1,15.7c9.06,18.53,27.73,37.06,46.46,46.11a16,16,0,0,0,15.75-1.14,8.44,8.44,0,0,0,.74-.56L168.89,152l47,21.05h0s.08,0,.11,0A40.21,40.21,0,0,1,176,208Z"></path></svg>
-                         ${response.mobile}
-                    </div>
-                    <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
-                         ${response.fullName}
-                    </div>
-                </div>
-                <a onclick="delteAddress(${response.id})" class="text-zinc-50 hover:text-zinc-100 transition bg-red-500 hover:bg-red-600 px-3 py-1 block w-fit mb-2 mr-5 text-xs rounded-md">
-                    حذف آدرس
-                </a>
-            </div>`;
-        if(document.getElementById('messegeAddress')){
-          document.getElementById('messegeAddress').innerHTML='';
-        }
-
-
       } else {
-
         getErrors.innerHTML = response.error;
         Toast.fire({
           icon: response.type,
           title: response.text,
         });
-        scroll(600, 700);
+        scroll(150, 600);
       }
     },
   });
 }
-function selectDataInBlog(selectId = null) {
-  let startTime; // لحظه شروع
-
-  $.ajax({
-    url: `${domain}requests/selectData/selectData.php`,
-    type: "POST",
-    data: {
-      selectId,
-    },
-    beforeSend: function () {
-      startTime = new Date().getTime();
-      Swal.fire({
-        title: '',
-        html: `
-        <div class="flex flex-col items-center justify-center p-2 text-center">
-          <img src="./../../assets/user/image/logo.png" alt="لوگو سایت" class="w-32 h-32 mb-3 object-contain" />
-          <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent border-solid rounded-full animate-spin"></div>
-          <p class="mt-2 text-sm font-medium text-gray-700">در حال بارگذاری اطلاعات...</p>
-        </div>
-`,
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        backdrop: true,
-        customClass: {
-          popup: 'rounded-3xl shadow-lg'
-        }
-      });
-    },
-    success: function (response) {
-      const endTime = new Date().getTime();
-      const elapsedTime = endTime - startTime;
-      const remainingTime = 2000 - elapsedTime;
-      if (remainingTime > 0) {
-        setTimeout(() => {
-          Swal.close();
-          fillData(response);
-        }, remainingTime);
-      } else {
-        Swal.close();
-        fillData(response);
-      }
-    }
-  });
-  function fillData(response) {
-    response = JSON.parse(response);
-    if (response.status == 200) {
-      let result = Object.keys(response.itemsCart).map((key) => [key, response.itemsCart[key]]);
-      document.getElementById('selectData').innerHTML = '';
-      for (let items in result) {
-        document.getElementById('selectData').innerHTML += `
-          <div class="bg-white rounded-3xl border transition border-zinc-300 group p-2 md:p-3 hover:drop-shadow-lg">
-            <a href="/blogSingle?trak=${result[items][1].id}&slug=${result[items][1].slug}" class="image-box block overflow-hidden rounded-xl md:rounded-2xl">
-              <img class="rounded-xl md:rounded-2xl w-full transition-transform duration-300 ease-in-out group-hover:rotate-3 group-hover:scale-110" src="${result[items][1].image}" alt="blog"/>
-            </a>
-            <div class="p-2 mt-2">
-              <a href="/blogSingle?trak=${result[items][1].id}&slug=${result[items][1].slug}" class="text-xs md:text-sm font-normal md:font-DANAREGULAR h-8 lg:h-10 line-clamp-2 text-zinc-700">
-                ${result[items][1].description}
-              </a>
-              <div class="flex justify-between mt-8">
-                <div class="text-xs flex gap-x-1 items-center text-zinc-400">
-                  <svg class="fill-zinc-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
-                    <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path>
-                  </svg>
-                  ${result[items][1].createAt}
-                </div>
-                <a href="/blogSingle?trak=${result[items][1].id}&slug=${result[items][1].slug}" class="flex justify-center items-center gap-x-1 group w-fit text-xs md:text-sm transition text-zinc-600 group-hover:text-primary-500">
-                  ادامه مطلب
-                  <svg class="fill-zinc-600 transition group-hover:fill-primary-500 size-2 md:size-4" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256">
-                    <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-    }
-  }
-}
-function updateInfoUser() {
-  let userFullName = $('input[name="userFullName"]').val(),
-      gender = $('select[name="gender"]').val(),
-      btnUpdateInfo = document.getElementById("btnUpdateInfo");
-
-  btnUpdateInfo.disabled = true;
-  $.ajax({
-    url: `${domain}requests/user/updateInformation.php`,
-    type: "POST",
-    data: {
-      userFullName,
-      gender,
-    },
-    success: function (response) {
-      response = JSON.parse(response);
-      setTimeout(() => {
-        btnUpdateInfo.disabled = false;
-      }, 3000);
-      if (response.status == 200) {
-        document.getElementById("showFullName").innerHTML = userFullName;
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      } else {
-        //document.getElementById("divShowError").classList.remove("d-none");
-        //document.getElementById("showError").innerHTML = response.text;
-        scroll(150, 1000);
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
-function AddToFavourites(userId, product_id) {
-  setTimeout(() => {
-    $.ajax({
-      url: 'requests/favourites/addToFavourites.php',
-      method: 'post',
-      dataType: 'json',
-      data: {
-        userId,
-        product_id
-      },
-      success: function (response) {
-        if (response.status === 200) {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          })
-          let mystar = document.getElementById("mystar" + product_id);
-          mystar.innerHTML = '<svg id="addToFavorites" class="transition" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="red" viewBox="0 0 256 256"><path d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"></path></svg>\n<path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg>\n';
-          mystar.setAttribute("onclick", `removeFromFavourites(${userId},${product_id}, ${response.id})`);
-        } else {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          });
-        }
-      },
-      error: function (error) {
-        console.log(error)
-      },
-    });
-  }, 300)
-}
-function removeFromFavourites(userId, product_id, id) {
-  setTimeout(() => {
-    $.ajax({
-      url: 'requests/favourites/removeToFavourites.php',
-      method: 'post',
-      dataType: 'json',
-      data: {
-        userId,
-        product_id,
-        id
-      },
-      success: function (response) {
-        if (response.status === 200) {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          })
-          let mystar = document.getElementById('mystar' + product_id);
-          if (mystar) {
-            mystar.innerHTML = ' <svg class="fill-zinc-700 hover:fill-red-400 transition" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="" viewBox="0 0 256 256"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg>\n';
-            mystar.setAttribute("onclick", `AddToFavourites(${userId},${product_id}, ${id})`);
-            document.getElementById('myDivFavourte' + id).remove();
-          } else {
-
-            document.getElementById('myDivFavourte' + id).remove();
-          }
-          if (response.len == 0) {
-            document.getElementById('Favourte').innerHTML = `
-                     <div id="myDivFavourte">
-                        <div class="text-center my-5">
-                            <img src="./../../assets/user/image/favorites-list-empty.svg" alt="">
-                            <p class="fs-8">لیست علاقه مندی های شما خالی است.</p>
-                        </div>
-                        <!--        User Panel Content:end-->   
-                    </div>
-                    `;
-          }
-        }
-        else {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          });
-        }
-      },
-      error: function (error) {
-        console.log(error)
-      },
-    });
-  }, 300)
-}
-function AddNewTicket() {
-  let formData = new FormData();
-  formData.append("fileUrl", $("#dropzone-file")[0].files[0]);
-  formData.append("text", $('input[name="text"]').val());
-  formData.append("title", $('input[name="title"]').val());
-  $.ajax({
-    enctype: "multipart/form-data",
-    url: `${domain}requests/tickets/createNewTicket.php`,
-    type: "POST",
-    processData: false,
-    contentType: false,
-    cache: false,
-    data: formData,
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        setTimeout(() => location.replace("/ticket"), 2000);
-      } else {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
-function AddTicketDetails(ticketId) {
-  let formData = new FormData();
-  formData.append("fileUrl", $("#dropzone-file")[0].files[0]);
-  formData.append("text", $('input[name="text"]').val());
-  formData.append("ticketId", ticketId);
-  $.ajax({
-    enctype: "multipart/form-data",
-    url: `${domain}requests/tickets/addTicketDetails.php`,
-    type: "POST",
-    processData: false,
-    contentType: false,
-    cache: false,
-    data: formData,
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        let downloadFile = "";
-        if (response.fileUrl)
-          downloadFile = `
-                    <div class="text-right">
-                         <a href="downloadFile.php?id=${response.id}" class="flex mx-auto items-center justify-center bg-green-700 hover:bg-zinc-600 transition rounded-xl h-8 w-10">
-                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                             </svg>
-                         </a>
-                    </div>
-        `;
-        if (!response.textTicket) {
-          response.textTicket = "";
-        }
-        document.getElementById("ticket").innerHTML = `
-                  <div class="col-start-1 col-end-8 text-sm w-fit bg-green-500 text-white py-2 px-4 shadow rounded-lg">
-                      <div class="">
-                          <div class="text-right">${response.textTicket}
-                          </div>
-                            ${downloadFile}
-                             <div class="text-xs mt-2 opacity-70">
-                             ${response.date_org}
-                          </div>
-                      </div>
-                  </div>
-                `;
-        document.getElementById('textMasseg').value = "";
-
-      } else {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
-function addToCart(product_id, variant_id) {
-  const cartButtonContainer = document.getElementById('parentButtonCart');
-  if (!cartButtonContainer) return;
-  // عنصر حاوی داده‌های محصول (برای محصول تک‌قیمتی)
-  const cartContainer = document.getElementById('cartContainer');
-  let payload = {
-    product_id: product_id,
-    variant_id: '',
-    color: '',
-    titleColor: '',
-    price: 0,
-    discount: 0,
-    quantity: 1,
-    maxCount: 1
-  };
-  const checkedColor = document.querySelector('input[name="colorSelect"]:checked');
-
-  // ===== محصول واریانتی =====
-  if (checkedColor) {
-    const v = JSON.parse(checkedColor.value);
-    payload.variant_id = v.id;
-    payload.price = Number(v.price);
-    payload.discount = Number(v.discount ?? v.price);
-    payload.color = v.color ?? '';
-    payload.titleColor = v.titleColor ?? '';
-    payload.maxCount = Number(v.count ?? 1);
-  }
-  // ===== محصول تک‌قیمتی =====
-  else {
-    if (!cartContainer) {
-      Toast.fire({ icon: 'error', title: 'اطلاعات محصول کامل نیست' });
-      return;
-    }
-
-    const priceAttr = cartContainer.dataset.price;
-    const discountAttr = cartContainer.dataset.discount ?? priceAttr;
-    const countAttr = cartContainer.dataset.count ?? '1000';
-
-    if (!priceAttr || isNaN(Number(priceAttr))) {
-      Toast.fire({ icon: 'error', title: 'قیمت محصول مشخص نیست' });
-      return;
-    }
-
-    payload.price = Number(priceAttr);
-    payload.discount = Number(discountAttr);
-    payload.maxCount = Number(countAttr);
-    payload.variant_id = 'default';
-  }
-  if (payload.maxCount <= 0) {
-    Toast.fire({ icon: 'error', title: 'این محصول ناموجود است' });
-    return;
-  }
-  // خواندن تعداد از input number
-  const quantityInput = cartButtonContainer.querySelector('input[type="number"]');
-  let quantity = quantityInput ? Number(quantityInput.value) : 1;
-  if (isNaN(quantity) || quantity < 1) quantity = 1;
-  if (quantity > payload.maxCount) quantity = payload.maxCount;
-  payload.quantity = quantity;
-  // ارسال Ajax
-  $.ajax({
-    url: `${domain}requests/cart/add.php`,
-    type: "POST",
-    dataType: "json",
-    data: payload,
-    success(response) {
-      if (response.status !== 200) {
-        Toast.fire({ icon: response.type || 'error', title: response.text || 'خطایی رخ داد' });
-        return;
-      }
-
-      Toast.fire({ icon: response.type, title: response.text });
-
-      // پاک‌کردن لیست فعلی سبد
-      const listCart = document.getElementById('listCart');
-      if (listCart) {
-        listCart.innerHTML = '';
-        // رندر مجدد آیتم‌ها
-        Object.values(response.itemsCart).forEach(item => {
-          listCart.innerHTML += `
-            <li id="product${item.product_id}_${item.variant_id || 'default'}">
-              <div class="flex gap-x-2 pt-5">
-                <div class="relative min-w-fit">
-                  <a href="/singleProduct?slug=${item.slug}&code=${item.product_id}">
-                    <img class="h-[120px] w-[120px]" src="${item.image}">
-                  </a>
-                </div>
-                <div class="w-full flex gap-x-1">
-                  <a class="line-clamp-2 h-12 text-zinc-700" href="/singleProduct?slug=${item.slug}&code=${item.product_id}">${item.title}</a>
-                  <div onclick="removeFromCart('${item.product_id}','${item.variant_id || ''}')" class="size-8 group cursor-pointer rounded-lg p-1 bg-primary-400 hover:bg-primary-500 transition">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path class="stroke-white" d="M20.5 6H3.5M9.5 11L10 16M14.5 11L14 16" stroke="" stroke-width="1.5" stroke-linecap="round"/>
-                      <path class="stroke-white" d="M6.5 6H6.61C7.01245 5.98972 7.40242 5.85822 7.72892 5.62271C8.05543 5.3872 8.30325 5.05864 8.44 4.68L8.474 4.577L8.571 4.286C8.654 4.037 8.696 3.913 8.751 3.807C8.85921 3.59939 9.01451 3.41999 9.20448 3.28316C9.39444 3.14633 9.6138 3.05586 9.845 3.019C9.962 3 10.093 3 10.355 3H13.645C13.907 3 14.038 3 14.155 3.019C14.3862 3.05586 14.6056 3.14633 14.7955 3.28316C14.9855 3.41999 15.1408 3.59939 15.249 3.807C15.304 3.913 15.346 4.037 15.429 4.286L15.526 4.577C15.6527 4.99827 15.9148 5.36601 16.2717 5.62326C16.6285 5.88051 17.0603 6.01293 17.5 6" stroke="black" stroke-width="1.5"/>
-                      <path class="stroke-white" d="M18.374 15.4C18.197 18.054 18.108 19.381 17.243 20.19C16.378 20.999 15.048 21 12.387 21H11.613C8.95299 21 7.62299 21 6.75699 20.19C5.89199 19.381 5.80399 18.054 5.62699 15.4L5.16699 8.5M18.833 8.5L18.633 11.5" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div class="flex justify-between px-6 w-full pb-2">
-                ${
-              item.color && item.titleColor
-                  ? `<div class="flex gap-x-2 text-sm text-gray-600 items-center">
-                        <div class="w-4 h-4 rounded-full border" style="background-color:${item.color}"></div>
-                        ${item.titleColor}
-                      </div>`
-                  : `<div></div>`
-          }
-                <div class="flex flex-col items-end">
-                  ${
-              item.discount < item.price
-                  ? `<div class="text-gray-400"><span class="text-sm line-through">${numberWithCommas(item.price)}</span><span class="text-sm">تومان</span></div>`
-                  : ''
-          }
-                  <div class="text-gray-700">
-                    <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
-                    <span class="text-sm">تومان</span>
-                  </div>
-                </div>
-              </div>
-            </li>`;
-        });
-      }
-      // آپدیت دکمه مربوط به واریانت (فقط در صورت وجود)
-      const variantId = payload.variant_id;
-      if (variantId !== 'default') {
-        const variantBox = document.querySelector(
-            `.variant-button-container[data-variant-id="${variantId}"]`
-        );
-        if (variantBox) {
-          variantBox.innerHTML = `
-            <div class="quantity-container flex h-10 w-full items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-              <button type="button" onclick="updateCartQuantity(${product_id}, '${variantId}', 'increment')">+</button>
-              <input value="${payload.quantity}" disabled type="number" class="flex h-5 w-full grow text-center text-sm md:text-lg font-yekanBakhExtraBold text-zinc-600">
-              <button type="button" onclick="updateCartQuantity(${product_id}, '${variantId}', 'decrement')">-</button>
-            </div>
-          `;
-        }
-      }
-      // آپدیت badge و جمع کل
-      const badge = document.getElementById('cartBadge');
-      const countCart = document.getElementById('countCart');
-      const priceCart = document.getElementById('priceCart');
-
-      if (badge) badge.textContent = response.count;
-      if (countCart) countCart.innerHTML = response.count;
-      if (priceCart) priceCart.innerHTML = response.sumPrice;
-    },
-   /* error() {
-      Toast.fire({ icon: 'error', title: 'خطا در ارتباط با سرور' });
-    }*/
-  });
-}
-function deleteFromCart(product_id, variant_id) {
-  $.ajax({
-    url: 'requests/cart/delete.php',
-    type: "POST",
-    dataType: 'json',
-    data: {
-      product_id: product_id,
-      variant_id: variant_id
-    },
-    success: function (response) {
-      if (response.status == 200) {
-
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        })
-
-        // حذف آیتم از DOM (بر اساس کلید کامل)
-        const rowId = 'parentDivProductInPageCart_' + product_id + '_' + variant_id;
-        const el = document.getElementById(rowId);
-        if (el) el.remove();
-
-        document.getElementById('listCart').innerHTML = '';
-
-        if (response.count == 0) {
-          document.getElementById('parentAllDivCart').innerHTML = `
-            <div class="flex flex-col justify-center items-center mx-auto">
-              <div class="text-zinc-600 text-center py-10 text-xl md:text-3xl flex gap-x-1">
-                <img class="size-6 md:size-10" src="./../../assets/user/image/icons/cancel.svg">
-                سبد خرید خالی است !
-              </div>
-              <a href="/" class="bg-primary-500 hover:bg-primary-400 text-white px-5 py-3 rounded-lg">
-                مشاهده جدیدترین محصولات
-              </a>
-            </div>
-          `;
-          document.getElementById('listCart').innerHTML = "سبد خرید خالی است";
-        }
-
-        document.getElementById('countCart').innerHTML  = response.count;
-        document.getElementById('priceCart').innerHTML  = response.sumPrice;
-        document.getElementById('sumPriceInPageCart').innerHTML  = response.sumPrice;
-        document.getElementById('sumPriceInPageCart1').innerHTML = response.sumPrice;
-
-        let result = Object.values(response.itemsCart);
-
-        result.forEach(item => {
-          document.getElementById('listCart').innerHTML += `
-            <li id="product${item.product_id}_${item.variant_id || 'default'}">
-              <div class="flex gap-x-2 pt-5">
-                <div class="relative min-w-fit">
-                  <a href="/singleProduct?slug=${item.slug}&code=${item.product_id}">
-                    <img class="h-[120px] w-[120px]" src="${item.image}">
-                  </a>
-                </div>
-                <div class="w-full flex gap-x-1">
-                  <a class="line-clamp-2 h-12 text-zinc-700" href="/singleProduct?slug=${item.slug}&code=${item.product_id}">${item.title}</a>
-                  <div onclick="removeFromCart('${item.product_id}','${item.variant_id || ''}')" class="size-8 group cursor-pointer rounded-lg p-1 bg-primary-400 hover:bg-primary-500 transition">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path class="stroke-white" d="M20.5 6H3.5M9.5 11L10 16M14.5 11L14 16" stroke="" stroke-width="1.5" stroke-linecap="round"/>
-                      <path class="stroke-white" d="M6.5 6H6.61C7.01245 5.98972 7.40242 5.85822 7.72892 5.62271C8.05543 5.3872 8.30325 5.05864 8.44 4.68L8.474 4.577L8.571 4.286C8.654 4.037 8.696 3.913 8.751 3.807C8.85921 3.59939 9.01451 3.41999 9.20448 3.28316C9.39444 3.14633 9.6138 3.05586 9.845 3.019C9.962 3 10.093 3 10.355 3H13.645C13.907 3 14.038 3 14.155 3.019C14.3862 3.05586 14.6056 3.14633 14.7955 3.28316C14.9855 3.41999 15.1408 3.59939 15.249 3.807C15.304 3.913 15.346 4.037 15.429 4.286L15.526 4.577C15.6527 4.99827 15.9148 5.36601 16.2717 5.62326C16.6285 5.88051 17.0603 6.01293 17.5 6" stroke="black" stroke-width="1.5"/>
-                      <path class="stroke-white" d="M18.374 15.4C18.197 18.054 18.108 19.381 17.243 20.19C16.378 20.999 15.048 21 12.387 21H11.613C8.95299 21 7.62299 21 6.75699 20.19C5.89199 19.381 5.80399 18.054 5.62699 15.4L5.16699 8.5M18.833 8.5L18.633 11.5" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div class="flex justify-between px-6 w-full pb-2">
-                ${
-              item.color && item.titleColor
-                  ? `<div class="flex gap-x-2 text-sm text-gray-600 items-center">
-                        <div class="w-4 h-4 rounded-full border" style="background-color:${item.color}"></div>
-                        ${item.titleColor}
-                      </div>`
-                  : `<div></div>`
-          }
-                <div class="flex flex-col items-end">
-                  ${
-              item.discount < item.price
-                  ? `<div class="text-gray-400"><span class="text-sm line-through">${numberWithCommas(item.price)}</span><span class="text-sm">تومان</span></div>`
-                  : ''
-          }
-                  <div class="text-gray-700">
-                    <span class="text-lg font-bold">${numberWithCommas(item.discount)}</span>
-                    <span class="text-sm">تومان</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-          `;
-        });
-
-      } else if (response.status == 4000) {
-        location.reload();
-      }
-    }
-  });
-}
-
-function QuantityCart(product_id, variant_id, action) {
-  $.ajax({
-    url: `${domain}requests/cart/quantity.php`,
-    type: "POST",
-    dataType: "json", // ✅ خیلی مهم
-    data: {
-      product_id: product_id,
-      variant_id: variant_id,
-      item: action
-    },
-    success: function (response) {
-
-      // 🔔 حالا درست کار می‌کنه
-      Toast.fire({
-        icon: response.type,
-        title: response.text,
-      });
-
-      if (response.status !== 200) return;
-
-      const quantity    = parseInt(response.quantity);
-      const maxPurchase = parseInt(response.maxPurchase);
-
-      // input تعداد
-      const input = document.getElementById(
-          `countItem_${product_id}_${variant_id}`
-      );
-      if (input) input.value = quantity;
-
-      // دکمه +
-      const incBtn = document.querySelector(
-          `.btn-inc[data-product="${product_id}"][data-variant="${variant_id}"]`
-      );
-
-      // دکمه -
-      const decBtn = document.querySelector(
-          `.btn-dec[data-product="${product_id}"][data-variant="${variant_id}"]`
-      );
-
-      if (incBtn) {
-        incBtn.disabled = quantity >= maxPurchase;
-        incBtn.classList.toggle("opacity-40", quantity >= maxPurchase);
-        incBtn.classList.toggle("cursor-not-allowed", quantity >= maxPurchase);
-      }
-
-      if (decBtn) {
-        decBtn.disabled = quantity <= 1;
-        decBtn.classList.toggle("opacity-40", quantity <= 1);
-        decBtn.classList.toggle("cursor-not-allowed", quantity <= 1);
-      }
-
-      // قیمت
-      if (document.getElementById("sumPriceInPageCart")) {
-        document.getElementById("sumPriceInPageCart").innerHTML = response.sumPrice;
-      }
-      if (document.getElementById("sumPriceInPageCart1")) {
-        document.getElementById("sumPriceInPageCart1").innerHTML = response.sumPrice;
-      }
-    }
-  });
-}
-function cleanPrice(priceStr) {
-  return priceStr.replace(/,/g, '');
-}
-function payment(isLogined = true) {
-  if (!isLogined)
-    location.replace("login?action=cart");
-  let price = document.getElementById('sumPriceInPageCart').innerHTML;
-  price =  cleanPrice(price);
-  $.ajax({
-    url:`${domain}requests/cart/payment.php`,
-    type: "POST",
-    dataType: 'json',
-    data: {
-      price
-    },
-    success: function (response) {
-      if (response.status == 200) {
-        Toast.fire({
-          icon: "success",
-          title: response.text,
-        });
-        location.replace(response.url)
-      }
-      else
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-    }
-  })
-}
-
-
 

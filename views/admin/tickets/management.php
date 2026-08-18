@@ -145,15 +145,12 @@
                                                 ?>
                                                 <div class="alert alert-warning col-12 col-md-12">
                                                     <h3 class="text-center">
-                                                        هیچ مقاله ای وجود ندارد
+                                                        هیچ  تیکتی وجود ندارد
                                                     </h3>
                                                 </div>
                                                 <?php
                                             }
                                             ?>
-
-
-
                                             <br>
                                         </tbody>
 

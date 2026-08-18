@@ -25,7 +25,7 @@ if ($products){
                     <?php foreach ($products as $product):
                         $images = json_decode($product['images'], true);
                         $mainImage = $product['main_image'] ?? ($images[0] ?? '');
-                        $thumbnail = !empty($mainImage) ? "public/images/products/{$mainImage}" : '';
+                        $thumbnail = !empty($mainImage) ? getProductImageUrl($mainImage) : '';
                         ?>
                         <div class="card swiper-slide shiny my-2 p-2 md:p-4 hover:border-transparent hover:shadow-lg transition-shadow rounded-3xl border border-zinc-200">
                             <div class="flex flex-col gap-1.5 absolute top-4 right-4">

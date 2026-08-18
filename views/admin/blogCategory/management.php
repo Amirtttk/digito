@@ -48,20 +48,11 @@
                                 $getAllCategories = getAllBlogCategories();
                                 if ($getAllCategories) {
                                     foreach ($getAllCategories as $category) {
-                                        if ($category['image'] ) {
-                                            $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $category['image']);
-                                        }
                                         ?>
                                         <tr id="deleteCategory<?php echo $category['id']?>">
                                             <td><?= $keyNumber++ ?></td>
                                             <td>
-                                                <?php
-                                                if ($thumbnail) {
-                                                    echo '<img width="100" height="70" src="../../' . $thumbnail . '">';
-                                                } else {
-                                                    echo '-'; // اگر تصویر وجود ندارد، علامت خط تیره می‌گذاریم.
-                                                }
-                                                ?>
+                                                   <img width="100" height="70" src="../../public/images/blog_categories/<?= $category['image_name']; ?>">
                                             </td>
                                             <td><?= $category['title'] ?></td>
                                             <td style="min-width:80px;" id="statusShow<?= $category['id'] ?>">
@@ -133,7 +124,7 @@
 
 <!--end::Content-->
 <?php
-$pageTitle = "مدیریت بنر ها ";
+$pageTitle = "دسته بندی مقالات";
 $pageScript = "
     <script src='../../../assets/admin/plugins/custom/prismjs/prismjs.bundle.js?v=7.0.6'></script>
     <script src='../../../assets/admin/js/pages/widgets.js?v=7.0.6'></script>

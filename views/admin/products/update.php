@@ -1,5 +1,23 @@
 <?php
 $getOneProduct = getOneProduct(GET('id'));
+// محاسبه ایندکس تصویر اصلی برای مقداردهی اولیه
+$oldImagesForIndex = json_decode($getOneProduct['images'], true) ?? [];
+$mainImageRaw = $getOneProduct['main_image'] ?? '';
+$initialMainIndex = 0;
+if ($mainImageRaw && !empty($oldImagesForIndex)) {
+    $idx = array_search($mainImageRaw, $oldImagesForIndex, true);
+    if ($idx === false) {
+        foreach ($oldImagesForIndex as $i => $img) {
+            if (basename($img) === basename($mainImageRaw)) {
+                $idx = $i;
+                break;
+            }
+        }
+    }
+    if ($idx !== false) {
+        $initialMainIndex = $idx;
+    }
+}
 ?>
 <style>
     .image-container {
@@ -217,15 +235,12 @@ $getOneProduct = getOneProduct(GET('id'));
 
                                     // بررسی اینکه آیا قیمت چندگانه وجود دارد یا نه
                                     $isMultiplePrices = is_array($prices) && count($prices) > 1;
-
                                     ?>
-
                                     <div class="col-lg-1 col-12" id="price">
                                         <label>چند قیمتی؟</label>
-                                        <input id="multiPrice" type="checkbox" style="width:25px; height:25px; margin-right:10px;" name="feature_names[]"
+                                        <input id="multiPrice" type="checkbox" style="width:25px; height:25px; margin-right:10px;" name="multiPrice"
                                             <?php echo $isMultiplePrices ? 'checked' : ''; ?>>
                                     </div>
-
                                     <div class="col-lg-7" id="box1" style="display: <?= $isMultiplePrices ? 'none' : 'flex'; ?>;">
                                         <div class="col-lg-7">
                                             <label>قیمت محصول:</label>
@@ -238,8 +253,6 @@ $getOneProduct = getOneProduct(GET('id'));
                                                    value="<?= htmlspecialchars($getOneProduct['token'] ?? ''); ?>" />
                                         </div>
                                     </div>
-
-
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-lg-12" id="box2" style="display: <?= $isMultiplePrices ? 'flex' : 'none'; ?>;">
@@ -248,8 +261,11 @@ $getOneProduct = getOneProduct(GET('id'));
                                             <div id="exerciseContainer1">
                                                 <?php if ($isMultiplePrices): ?>
                                                     <?php foreach ($prices as $price): ?>
-                                                        <div class="row exercise-block mt-2">
-                                                            <input type="hidden" name="exercise_id[]" value="<?= uniqid(); ?>">
+                                                        <?php
+                                                            $uid = uniqid( true);
+                                                        ?>
+                                                        <div class="row exercise-block mt-2" id="<?= $uid; ?>">
+                                                            <input type="hidden" name="exercise_id[]" value="<?= $uid; ?>">
                                                             <div class="col-lg-2 col-12">
                                                                 <label>عنوان رنگ:</label>
                                                                 <input type="text" class="form-control" name="feature_title_color[]" placeholder="عنوان رنگ را وارد کنید"
@@ -279,7 +295,7 @@ $getOneProduct = getOneProduct(GET('id'));
                                                             </div>
 
                                                             <div class="col-lg-1 col-12 d-flex align-items-end">
-                                                                <button type="button" class="btn btn-danger remove-exercise" data-id="<?= uniqid(); ?>">
+                                                                <button type="button" class="btn btn-danger remove-exercise" data-id="<?= $uid; ?>">
                                                                     حذف
                                                                 </button>
                                                             </div>
@@ -299,8 +315,14 @@ $getOneProduct = getOneProduct(GET('id'));
                                         <input type="file" name="images[]" id="imageInput" accept="image/*" multiple class="form-control" />
                                         <div id="imagePreview" class="row mt-3"></div>
                                         <input type="hidden" name="main_image_index" id="mainImageIndex"
-                                               value="<?= isset($getOneProduct['main_image_index']) ? $getOneProduct['main_image_index'] : 0 ?>">
+                                               value="<?= $initialMainIndex ?>">
                                         <input type="hidden" name="deleted_images" id="deletedImages" value="">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>نکته محصول:</label>
+                                        <input name="tip" value="<?= $getOneProduct['tip'] ?>" type="text" class="form-control"
+                                               data-v-message="نکته محصول نمی‌تواند خالی باشد" required
+                                               placeholder="نکته محصول را وارد کنید" />
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -312,10 +334,6 @@ $getOneProduct = getOneProduct(GET('id'));
                                         <label>تعداد حداکثر افزودن به سبد خرید  :(اختیاری)</label>
                                         <input value="<?= $getOneProduct['max_purchases'] ?>" type="text" name="max_purchases" class="form-control"
                                                required />
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <label>تعداد ماه گارانتی :(اختیاری)</label>
-                                        <input value="<?= $getOneProduct['garanti'] ?>" type="text" name="garanti" class="form-control" data-v-message="قیمت محصول نمی‌تواند خالی باشد" required />
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -480,17 +498,25 @@ $getOneProduct = getOneProduct(GET('id'));
                                         ?>
                                     </select>
                                 </div>
-                                <?php
-                                $isSpecial = isset($getOneProduct['special']) && $getOneProduct['special'] == 1; // بررسی وضعیت محصول ویژه
-                                ?>
-                                <div class="col-lg-7">
-                                    <label> محصول ویژه؟</label>
-                                    <span class="switch switch-icon">
-                                            <input type="checkbox" name="special" <?php echo $isSpecial ? 'checked' : ''; ?> />
-                                            <span></span>
-                                    </span>
+                                <div class="col-lg-2">
+                                    <label>محصول ویژه؟</label>
+                                    <select class="form-control" name="special">
+                                        <?php
+                                        if ($getOneProduct['special'] == 1){
+                                        ?>
+                                        <option value="1">بله</option>
+                                        <option value="2">خیر</option>
+                                            <?php
+                                        }else{
+                                        ?>
+                                            <option value="2">خیر</option>
+                                            <option value="1">بله</option>
+                                            <?php
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
-                                <div class="col-lg-2" style="margin-top: 26px;">
+                                <div class="col-lg-2" style="margin-top: 26px;margin-right:auto;">
                                     <button type="button" class="btn btn-primary mr-2" onclick="updateProduct(<?= GET('id') ?>)">ویرایش</button>
                                     <a href="http://home.test/admin/agent/management" class="btn btn-secondary">لغو</a>
                                 </div>
@@ -516,14 +542,26 @@ $getOneProduct = getOneProduct(GET('id'));
     <!--end::Entry-->
 </div>
 <!--end::Content-->
+<?php
+    $oldImagesRaw = json_decode($getOneProduct['images'], true) ?? [];
+    $oldImagesForJs = [];
+    foreach ($oldImagesRaw as $img) {
+        $path = str_replace('\\', '/', (string)$img);
+        $oldImagesForJs[] = ['path' => $path, 'url' => getProductImageUrl($img)];
+    }
+    $mainImageForJs = str_replace('\\', '/', (string)($getOneProduct['main_image'] ?? ''));
+    $productImagesData = ['oldImages' => $oldImagesForJs, 'mainImage' => $mainImageForJs];
+?>
+<script type="application/json" id="productImagesData"><?= json_encode($productImagesData, JSON_UNESCAPED_UNICODE) ?></script>
 <script>
+    var _imgData = JSON.parse(document.getElementById('productImagesData').textContent);
     const imageInput = document.getElementById('imageInput');
     const previewContainer = document.getElementById('imagePreview');
     const mainImageIndexInput = document.getElementById('mainImageIndex');
-    let imageFiles = [];   // تصاویر جدید
-    let oldImages = <?= json_encode(json_decode($getOneProduct['images'], true) ?? []) ?>;
-    let mainImage = <?= json_encode($getOneProduct['main_image'] ?? '') ?>; // تصویر اصلی
-    let deletedImages = []; // تصاویر حذف شده
+    var imageFiles = [];   // تصاویر جدید (برای main.js)
+    let oldImages = _imgData.oldImages || [];
+    let mainImage = _imgData.mainImage || '';
+    var deletedImages = []; // تصاویر حذف شده (برای main.js)
 
     // تغییر فایل
     imageInput.addEventListener('change', function () {
@@ -543,26 +581,40 @@ $getOneProduct = getOneProduct(GET('id'));
         previewContainer.innerHTML = '';
 
         // تصاویر قدیمی
-        oldImages.forEach((img, index) => {
-            createImageContainer(img, index, true); // تصاویر قدیمی
+        oldImages.forEach((imgObj, index) => {
+            createImageContainer(imgObj, index, true);
         });
 
         // تصاویر جدید
         imageFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = function (e) {
-                createImageContainer(e.target.result, oldImages.length + index, false); // تصاویر جدید
+                createImageContainer(e.target.result, oldImages.length + index, false, file);
             };
             reader.readAsDataURL(file);
         });
     }
 
-    function createImageContainer(src, totalIndex, isOldImage) {
+    function pathMatches(a, b) {
+        if (!a || !b) return false;
+        if (a === b) return true;
+        var getBase = function(p) {
+            var s = String(p);
+            var i = Math.max(s.lastIndexOf('/'), s.lastIndexOf(String.fromCharCode(92)));
+            return i >= 0 ? s.slice(i + 1) : s;
+        };
+        return getBase(a) === getBase(b);
+    }
+
+    function createImageContainer(srcOrObj, totalIndex, isOldImage, newImageFile) {
         const container = document.createElement('div');
         container.className = 'col-md-3 mb-2 position-relative';
 
+        const path = isOldImage ? srcOrObj.path : null;
+        const displaySrc = isOldImage ? ('/' + srcOrObj.url) : srcOrObj;
+
         const img = document.createElement('img');
-        img.src = isOldImage ? "/public/images/products/" + src : src; // اگر تصویر قدیمی باشد، از مسیر استفاده کن
+        img.src = displaySrc;
         img.className = "img-thumbnail";
         img.style = "height:140px;object-fit:cover;";
 
@@ -571,14 +623,14 @@ $getOneProduct = getOneProduct(GET('id'));
         radio.name = 'mainImage';
         radio.className = 'position-absolute';
         radio.style = "top:5px;right:5px;";
-        radio.checked = (mainImage === (isOldImage ? src : src)); // بررسی تصویر اصلی
+        radio.checked = isOldImage ? pathMatches(mainImage, path) : (parseInt(mainImageIndexInput.value, 10) === totalIndex);
         radio.onclick = function () {
             mainImageIndexInput.value = totalIndex;
-            mainImage = src; // به‌روزرسانی تصویر اصلی
+            mainImage = isOldImage ? path : totalIndex;
             renderImages();
         };
 
-        if (mainImage === src) {
+        if ((isOldImage && pathMatches(mainImage, path)) || (!isOldImage && parseInt(mainImageIndexInput.value, 10) === totalIndex)) {
             const badge = document.createElement('span');
             badge.className = "badge badge-primary position-absolute";
             badge.style = "top:5px;left:5px;";
@@ -593,19 +645,17 @@ $getOneProduct = getOneProduct(GET('id'));
         removeBtn.innerHTML = "حذف";
         removeBtn.onclick = function () {
             if (isOldImage) {
-                deletedImages.push(src); // اگر تصویر قدیمی است، به لیست حذف شده‌ها اضافه کن
-                oldImages = oldImages.filter(image => image !== src); // حذف از تصاویر قدیمی
+                deletedImages.push(path);
+                oldImages = oldImages.filter(img => img.path !== path);
             } else {
-                const index = imageFiles.indexOf(file);
-                if (index > -1) {
-                    imageFiles.splice(index, 1); // حذف از تصاویر جدید
-                }
+                const idx = imageFiles.indexOf(newImageFile);
+                if (idx > -1) imageFiles.splice(idx, 1);
             }
 
-            // اگر تصویر اصلی حذف شود
-            if (mainImage === src) {
-                mainImage = oldImages.length > 0 ? oldImages[0] : ""; // اگر تصویر اصلی حذف شده باشد
-                mainImageIndexInput.value = oldImages.length > 0 ? 0 : ""; // تنظیم تصویر اصلی به اولی
+            const wasMain = isOldImage ? pathMatches(mainImage, path) : (parseInt(mainImageIndexInput.value, 10) === totalIndex);
+            if (wasMain) {
+                mainImage = oldImages.length > 0 ? oldImages[0].path : (imageFiles.length > 0 ? oldImages.length : "");
+                mainImageIndexInput.value = oldImages.length > 0 ? 0 : (imageFiles.length > 0 ? oldImages.length : "");
             }
             renderImages();
             updateInputFiles();
@@ -758,7 +808,7 @@ $getOneProduct = getOneProduct(GET('id'));
                 <input type="text" name="feature_values[]" class="form-control" placeholder="مثلا شیشه" required>
             </div>
             <div class="col-lg-1 col-12 d-flex align-items-end">
-                <button type="button" class="btn btn-danger remove-feature w-100" data-id="${uid}">
+                <button type="button" class="btn btn-danger remove-feature w-100" data-id="<?= $price['id']; ?>">
                     حذف
                 </button>
             </div>
@@ -814,7 +864,6 @@ $getOneProduct = getOneProduct(GET('id'));
         }
     });
 </script>
-
 <script>
     $(document).ready(function () {
         const keywords = []; // آرایه برای ذخیره کلمات کلیدی
@@ -906,4 +955,3 @@ $pageLink = "
     <script type='text/javascript' src='../../assets/admin/js/jalalidatepicker.js'></script>
 ";
 ?>
-

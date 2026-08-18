@@ -68,7 +68,7 @@
                                                 // تصویر شاخص (main_image یا اولین عکس از images)
                                                 $images = json_decode($AllProducts['images'], true);
                                                 $mainImage = $AllProducts['main_image'] ?? ($images[0] ?? '');
-                                                $thumbnail = !empty($mainImage) ? "public/images/products/{$mainImage}" : '';
+                                                $thumbnail = !empty($mainImage) ? getProductImageUrl($mainImage) : '';
                                                 // گرفتن عنوان دسته‌بندی (فرض بر این که با ID موجوده)
                                                 $getOneCategories = getCategoryById($AllProducts['category_id']); // تابع فرضی
                                                 ?>

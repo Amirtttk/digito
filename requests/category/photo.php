@@ -1,61 +1,94 @@
 <?php
-if (!empty($_FILES['image']['size'])) {
-    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    $max_file_size = 1048576; // 1MB
-    $original_name = $_FILES['image']['name'];
-    $file_size = $_FILES['image']['size'];
-    $suffix = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-    if (!in_array($suffix, $allowed_extensions)) {
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = PATH_UPLOADS_DIR . 'images/category/';
+    $maxFileSize = 1 * 1024 * 1024; // 1MB
+    // بررسی حجم
+    if ($_FILES['image']['size'] > $maxFileSize) {
         responseJson([
-            'text' => 'فقط فرمت‌های jpg, jpeg, png, gif, webp مجاز هستند.',
-            'type' => 'error',
-            'status' => 400
+            'text'   => 'حجم تصویر نباید بیش از 1 مگابایت باشد.',
+            'type'   => 'warning',
+            'status' => 400,
         ]);
+        exit;
     }
-    if ($file_size > $max_file_size) {
+    // بررسی نوع MIME واقعی
+    $allowedFileTypes = [
+        'image/png'  => 'png',
+        'image/jpeg' => 'jpg',
+        'image/jpg'  => 'jpg',
+        'image/gif'  => 'gif',
+        'image/webp' => 'webp',
+    ];
+    $fileType = mime_content_type($_FILES['image']['tmp_name']);
+    if (!array_key_exists($fileType, $allowedFileTypes)) {
         responseJson([
-            'text' => 'حجم تصویر نباید بیشتر از 1 مگابایت باشد.',
-            'type' => 'error',
-            'status' => 400
+            'text'   => 'فرمت فایل مجاز نیست. (png, jpg, gif, webp)',
+            'type'   => 'warning',
+            'status' => 400,
         ]);
+        exit;
     }
-    $new_name = md5($original_name . microtime()) . '.' . $suffix;
-    $path = PATH_UPLOADS_DIR . 'images/category/' . $new_name;
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
-        $getOneCateqory = getCategoryById(POST('id'));
-        $table = 'category';
-        $fields = [
-            'image' => $path,
-            'image_name' => $new_name,
-        ];
-        $updatePhoto = updateRecordToDatabase($table, $fields, POST('id'), 'id');
-
-        $oldImage = 'no';
-        if ($updatePhoto) {
-            $dir = PATH_UPLOADS_DIR . 'images/category/' . $getOneCateqory['image_name'];
-            if (file_exists($dir)) {
-                unlink($dir);
+    // ساخت نام یکتا
+    $suffix = $allowedFileTypes[$fileType];
+    $originalName = $_FILES['image']['name'];
+    $newName = md5($originalName . microtime(true)) . '.' . $suffix;
+    $targetPath = $uploadDir . $newName;
+    // انتقال فایل از tmp به مقصد
+    if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+        responseJson([
+            'text'   => 'آپلود تصویر با خطا مواجه شد.',
+            'type'   => 'warning',
+            'status' => 400,
+        ]);
+        exit;
+    }
+    // گرفتن اطلاعات دسته فعلی
+    $categoryId = POST('id');
+    $category = getCategoryById($categoryId);
+    if (!$category) {
+        unlink($targetPath); // حذف فایل جدید برای پاکیزگی
+        responseJson([
+            'text'   => 'دسته‌بندی مورد نظر یافت نشد.',
+            'type'   => 'warning',
+            'status' => 404,
+        ]);
+        exit;
+    }
+    // به‌روزرسانی تصویر در دیتابیس
+    $table = 'category';
+    $fields = [
+        'image_name' => $newName,
+    ];
+    $updateResult = updateRecordToDatabase($table, $fields, $categoryId, 'id');
+    if ($updateResult) {
+        // حذف تصویر قدیمی در صورت وجود
+        if (!empty($category['image_name'])) {
+            $oldImagePath = PATH_UPLOADS_DIR . 'images/category/' . $category['image_name'];
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
             }
-            $oldImage = 'yes';
-            responseJson([
-                'text' => 'تصویر دسته بندی با موفقیت ویرایش شد',
-                'type' => 'success',
-                'status' => 200,
-                'src' => 'public/images/category/' . $new_name,
-                'oldImage' => $oldImage
-            ]);
-        } else {
-            responseJson([
-                'text' => 'مشکلی در ویرایش رخ داده است',
-                'type' => 'warning',
-                'status' => 400
-            ]);
         }
-    } else {
         responseJson([
-            'text' => 'آپلود فایل با خطا مواجه شد.',
-            'type' => 'error',
-            'status' => 400
+            'text'   => 'تصویر دسته‌بندی با موفقیت ویرایش شد.',
+            'type'   => 'success',
+            'status' => 200,
+            'src'    => '/images/category/' . $newName,
+            'old_removed' => true,
+        ]);
+    } else {
+        // اگر آپدیت دیتابیس شکست خورد تصویر جدید حذف شود تا فایل یتیم نماند
+        unlink($targetPath);
+        responseJson([
+            'text'   => 'در به‌روزرسانی تصویر مشکلی پیش آمد.',
+            'type'   => 'warning',
+            'status' => 400,
         ]);
     }
+
+} else {
+    responseJson([
+        'text'   => 'تصویری برای آپلود ارسال نشده است.',
+        'type'   => 'warning',
+        'status' => 400,
+    ]);
 }

@@ -902,52 +902,6 @@ function updateImageBrand(id) {
     }
   });
 }
-function createBlog() {
-  let title = $('input[name="title"]').val(),
-      description = $('textarea[name="description"]').val(),
-      author = $('input[name="author"]').val(),
-      label = $('input[name="label"]').val(),
-      blog_categories_id = $('select[name="blog_categories_id"]').val(),
-      slug,
-      image = $('input[name="image"]')[0].files[0],
-      getErrors = document.getElementById("getErrors");
-  if(title) slug = createSlug(title)
-  let formData = new FormData();
-  formData.append("title", title);
-  formData.append("description", description);
-  formData.append("blog_categories_id", blog_categories_id);
-  formData.append("author", author);
-  formData.append("label", label);
-  formData.append("slug", slug);
-  if (image) {
-    formData.append("image", image);
-  }
-  $.ajax({
-    url: `${domain}requests/blog/create.php`,
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status === 200) {
-        getErrors.innerHTML = "";
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        setTimeout(() => location.replace("management"), 3000);
-      } else {
-        getErrors.innerHTML = response.error;
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        scroll(150, 1000);
-      }
-    },
-  });
-}
 function statusBlog(id, status) {
   $.ajax({
     url: `${domain}requests/blog/status.php`,
@@ -994,214 +948,71 @@ function statusBlog(id, status) {
   });
 }
 function updateBlog(id) {
-  let title = $('input[name="title"]').val(),
-      description = $('textarea[name="description"]').val(),
-      author = $('input[name="author"]').val(),
-      label = $('input[name="label"]').val(),
-      blog_categories_id = $('select[name="blog_categories_id"]').val(),
-      slug,
-      getErrors = document.getElementById("getErrors");
-      if(title) slug = createSlug(title)
+
+  const form = document.getElementById('productForm');
+  const formData = new FormData();
+
+  // تمام فیلدهای فرم
+  new FormData(form).forEach((value, key) => {
+    formData.append(key, value);
+  });
+
+  // slug
+  const title = $('input[name="title"]').first().val();
+
+  if (title) {
+    formData.set("title", title);
+    formData.append("slug", createSlug(title));
+  }
+
+  // id مقاله
+  formData.append("id", id);
 
   $.ajax({
     url: `${domain}requests/blog/update.php`,
     type: "POST",
-    data: {
-      title,
-      description,
-      author,
-      blog_categories_id,
-      label,
-      slug,
-      id,
-    },
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        getErrors.innerHTML = "";
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      } else {
-        getErrors.innerHTML = response.error;
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        scroll(150, 1000);
-      }
-    },
-  });
-}
-function updateImageBlog(id) {
-  let formData = new FormData();
-  formData.append("image", $("#inputFile")[0].files[0]);
-  formData.append("id", id);
-  document.getElementById('uploadedFileName').innerHTML = $("#inputFile")[0].files[0].name;
-
-  $.ajax({
-    type: "POST",
-    enctype: 'multipart/form-data',
-    url: `${domain}requests/blog/photo.php`,
     data: formData,
     processData: false,
     contentType: false,
-    cache: false,
-    timeout: 600000,
     success: function (response) {
-      let timerInterval;
 
-      Swal.fire({
-        title: 'در حال ویرایش تصویر مقاله',
-        html: 'لطفا منتظر بمانید',
-        timer: 2000,
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-        willClose: () => {
-          clearInterval(timerInterval);
-        }
-      }).then((result) => {
-        response = JSON.parse(response);
-        if (response.status == 200) {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          });
-          document.getElementById("myform").reset();
+      response = JSON.parse(response);
 
-          let deleteImageBlog = document.querySelector('#deleteImageBlog');
-          let deleteImageBlog2 = document.querySelector('#deleteImageBlog2');
-          let buttonImage = document.querySelector('#buttonImage');
-          let buttonImage2 = document.querySelector('#buttonImage2');
+      if (response.status === 200) {
 
-          if (response.oldImage == 'no') {
-            deleteImageBlog.classList.remove('d-none');
-            buttonImage.classList.remove('d-none');
-          }
+        Toast.fire({
+          icon: "success",
+          title: response.text
+        });
 
-          if (buttonImage2 && response.oldImage != 'no') {
-            buttonImage2.classList.remove('d-none');
-            deleteImageBlog2.classList.remove('d-none');
-          }
+        setTimeout(() => location.reload(), 2000);
 
-          document.getElementById('imageOld').src = "../../" + response.src;
-        } else {
-          Toast.fire({
-            icon: response.type,
-            title: response.text,
-          });
-        }
-      });
+      } else {
+
+        $('#getErrors').html(response.error || response.text);
+
+        Toast.fire({
+          icon: response.type || 'error',
+          title: response.text
+        });
+
+        scroll(150, 1000);
+      }
     }
   });
-}
-function delteBanner(Id) {
 
-  $.ajax({
-    url: `${domain}requests/banner/delete.php`,
-    type: "POST",
-    data: {
-      Id,
-    },
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-        document.getElementById('deleteBanner'+Id).style.display="none";
-      } else {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
-function updateImageBanner(id) {
-    let formData = new FormData();
-    formData.append("image", $("#inputFile")[0].files[0]);
-    formData.append("id", id);
-    document.getElementById('uploadedFileName').innerHTML = $("#inputFile")[0].files[0].name;
-
-    $.ajax({
-        type: "POST",
-        enctype: 'multipart/form-data',
-        url: `${domain}requests/banner/photo.php`,
-        data: formData,
-        processData: false,
-        contentType: false,
-        cache: false,
-        timeout: 600000,
-        success: function (response) {
-            let timerInterval;
-
-            Swal.fire({
-                title: 'در حال ویرایش تصویر بنر',
-                html: 'لطفا منتظر بمانید',
-                timer: 2000,
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            }).then((result) => {
-                response = JSON.parse(response);
-                if (response.status == 200) {
-                    Toast.fire({
-                        icon: response.type,
-                        title: response.text,
-                    });
-                    document.getElementById("myform").reset();
-
-                    let deleteImageBlog = document.querySelector('#deleteImageBlog');
-                    let deleteImageBlog2 = document.querySelector('#deleteImageBlog2');
-                    let buttonImage = document.querySelector('#buttonImage');
-                    let buttonImage2 = document.querySelector('#buttonImage2');
-
-                    if (response.oldImage == 'no') {
-                        deleteImageBlog.classList.remove('d-none');
-                        buttonImage.classList.remove('d-none');
-                    }
-                    if (buttonImage2 && response.oldImage != 'no') {
-                        buttonImage2.classList.remove('d-none');
-                        deleteImageBlog2.classList.remove('d-none');
-                    }
-                    document.getElementById('imageOld').src = "../../" + response.src;
-                } else {
-                    Toast.fire({
-                        icon: response.type,
-                        title: response.text,
-                    });
-                }
-            });
-        }
-    });
-}
-function toggleImageField(parentId) {
-  const imageField = document.getElementById("imageField");
-  if (parentId === "") {
-    imageField.style.display = "block"; // دسته اصلی = عکس داشته باشه
-  } else {
-    imageField.style.display = "none"; // زیردسته = عکس نمی‌خواد
-  }
 }
 function createCategory() {
   let formData = new FormData();
 
   let title = $('input[name="title"]').val();
+  let english_title = $('input[name="english_title"]').val();
   let parentId = $('select[name="parent_id"]').val();
   let image = $('input[name="image"]')[0].files[0];
   let getErrors = document.getElementById("getErrors"); // اگه div مخصوص خطا داری
 
   formData.append("title", title);
+  formData.append("english_title", english_title);
   formData.append("parent_id", parentId);
 
   // فقط اگه عکس انتخاب شده بود، اضافه می‌کنیم
@@ -1296,7 +1107,7 @@ function updateCategory(id) {
   let title = $('input[name="title"]').val(),
       getErrors = document.getElementById("getErrors");
   $.ajax({
-    url: `${domain}requests/category/update.php`,
+    url: `${domain}requests/blogCategory/update.php`,
     type: "POST",
     data: {
       title,
@@ -1492,51 +1303,6 @@ function statusAdvertising(id, status) {
     },
   });
 }
-function statusBanner(id, status) {
-  $.ajax({
-    url: `${domain}requests/banner/status.php`,
-    type: "POST",
-    data: {
-      id,
-      status,
-    },
-    success: function (response) {
-      response = JSON.parse(response);
-      if (response.status == 200) {
-        if (status === 1) {
-          document.getElementById("statusShow" + id).innerHTML = `
-                        <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
-                    `;
-          document
-              .getElementById("changeStatusInput" + id)
-              .setAttribute(
-                  "onclick",
-                  `statusBanner(${id}, 2)`
-              );
-        } else {
-          document.getElementById("statusShow" + id).innerHTML = `
-                        <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر فعال</span>
-                    `;
-          document
-              .getElementById("changeStatusInput" + id)
-              .setAttribute(
-                  "onclick",
-                  `statusBanner(${id}, 1)`
-              );
-        }
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      } else {
-        Toast.fire({
-          icon: response.type,
-          title: response.text,
-        });
-      }
-    },
-  });
-}
 $('#parentSelect').on('change', function () {
   var parentId = $(this).val();
 
@@ -1631,9 +1397,11 @@ function updateProduct(id) {
   const mainImageIndex = document.getElementById('mainImageIndex').value;
   const formData = new FormData();
 
-  // گرفتن فیلدهای فرم
+  // گرفتن فیلدهای فرم (main_image_index جداگانه اضافه می‌شود تا مقدار صحیح ارسال شود)
   new FormData(form).forEach((value, key) => {
-    formData.append(key, value); // همه فیلدها را اضافه کنید
+    if (key !== 'main_image_index' && key !== 'images[]') {
+      formData.append(key, value);
+    }
   });
 
   // تصاویر جدید
@@ -1648,8 +1416,9 @@ function updateProduct(id) {
     formData.append("deleted_images", deletedImages.join(","));
   }
 
-  // تصویر اصلی
-  formData.append('main_image_index', mainImageIndex);
+  // تصویر اصلی - مقدار به‌روز از hidden input
+  var mainImageIdxEl = document.getElementById('mainImageIndex');
+  formData.append('main_image_index', mainImageIdxEl ? mainImageIdxEl.value : (mainImageIndex || '0'));
 
   // slug
   const title = $('input[name="title"]').val();
@@ -1739,6 +1508,101 @@ function deleteForwarding(Id) {
           icon: response.type,
           title: response.text,
         });
+      }
+    },
+  });
+}
+function previewAppointmentSlots() {
+  let start = $('select[name="start_time"]').val();
+  let end = $('select[name="end_time"]').val();
+  let duration = parseInt($('select[name="slot_duration"]').val(), 10) || 30;
+  let capacity = parseInt($('input[name="capacity_per_slot"]').val(), 10) || 1;
+  let step = Math.max(1, Math.floor(duration / Math.max(1, capacity)));
+  let preview = document.getElementById("appointmentSlotsPreview");
+  if (!preview || !start || !end) {
+    return;
+  }
+
+  let startParts = start.split(":").map(Number);
+  let endParts = end.split(":").map(Number);
+  let startMinutes = startParts[0] * 60 + startParts[1];
+  let endMinutes = endParts[0] * 60 + endParts[1];
+
+  if (startMinutes >= endMinutes || step <= 0) {
+    preview.innerHTML = '<span class="text-muted">ساعت معتبری برای نمایش وجود ندارد.</span>';
+    return;
+  }
+
+  let html = "";
+  for (let m = startMinutes; m < endMinutes; m += step) {
+    let h = Math.floor(m / 60);
+    let min = m % 60;
+    let label =
+      String(h).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+    html +=
+      '<span class="label label-lg label-light-primary label-inline m-1 px-4 py-3">' +
+      label +
+      "</span>";
+  }
+  preview.innerHTML = html || '<span class="text-muted">ساعت معتبری برای نمایش وجود ندارد.</span>';
+}
+
+function updateAppointmentSettings(id) {
+  let start_time = $('select[name="start_time"]').val(),
+    end_time = $('select[name="end_time"]').val(),
+    slot_duration = $('select[name="slot_duration"]').val(),
+    capacity_per_slot = $('input[name="capacity_per_slot"]').val(),
+    price = $('input[name="price"]').val(),
+    status = $('select[name="status"]').val(),
+    working_days = [],
+    getErrors = document.getElementById("getErrors");
+
+  $('input[name="working_days[]"]:checked').each(function () {
+    working_days.push($(this).val());
+  });
+
+  $.ajax({
+    url: `${domain}requests/appointment/update.php`,
+    type: "POST",
+    data: {
+      id,
+      start_time,
+      end_time,
+      slot_duration,
+      capacity_per_slot,
+      price,
+      status,
+      working_days,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        if (response.slots && Array.isArray(response.slots)) {
+          let preview = document.getElementById("appointmentSlotsPreview");
+          if (preview) {
+            preview.innerHTML = response.slots
+              .map(function (slot) {
+                return (
+                  '<span class="label label-lg label-light-primary label-inline m-1 px-4 py-3">' +
+                  slot +
+                  "</span>"
+                );
+              })
+              .join("");
+          }
+        }
+      } else {
+        getErrors.innerHTML = response.error || "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
       }
     },
   });
@@ -2185,3 +2049,974 @@ function statusUser(id, status) {
     },
   });
 }
+function updateCoupon(id) {
+
+  let code = $('input[name="code"]').val(),
+      discount_type = $('input[name="discount_type"]:checked').val(),
+      discount_value = $('input[name="discount_value"]').val(),
+      start_date = $('input[name="start_date"]').val(),
+      end_date = $('input[name="end_date"]').val(),
+      usage_limit = $('input[name="usage_limit"]').val(),
+      min_purchase = $('input[name="min_purchase"]').val(),
+      once_per_user = $('input[name="once_per_user"]').is(':checked') ? 1 : 0,
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/coupons/update.php`,
+    type: "POST",
+    data: {
+      id: id,
+      code: code,
+      discount_type: discount_type,
+      discount_value: discount_value,
+      start_date: start_date,
+      end_date: end_date,
+      usage_limit: usage_limit,
+      min_purchase: min_purchase,
+      once_per_user: once_per_user,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        getErrors.innerHTML = response.error ?? '';
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    }
+  });
+}
+function statusCopens(id, status) {
+  $.ajax({
+    url: `${domain}requests/coupons/status.php`,
+    type: "POST",
+    data: {
+      id,
+      status,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        if (status === 1) {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusCopens(${id}, 2)`
+              );
+        } else {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusCopens(${id}, 1)`
+              );
+        }
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function changeOrderStatus(orderId, status) {
+  $.ajax({
+    url: `${domain}requests/order/changeStatus.php`,
+    type: "POST",
+    data: {
+      id: orderId,
+      status: status,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        // آپدیت وضعیت در جدول
+        let labelHtml = "";
+        if (status == 1) {
+          labelHtml = `<span class="label label-lg font-weight-bold label-light-success label-inline">مرسوله رسیده</span>`;
+        } else if (status == 2) {
+          labelHtml = `<span class="label label-lg font-weight-bold label-light-primary label-inline">مرسوله در دست پست </span>`;
+        } else if (status == 3) {
+          labelHtml = `<span class="label label-lg font-weight-bold label-light-danger label-inline">درحال بسته بندی</span>`;
+        } else if (status == 4) {
+          labelHtml = `<span class="label label-lg font-weight-bold label-light-info label-inline">منتظر تایید</span>`;
+        }
+
+        // فرض بر اینکه تگ وضعیت جدول idش اینه:
+        document.getElementById("statusShow" + orderId).innerHTML = labelHtml;
+
+        // بستن مودال
+        $('#exampleModal').modal('hide');
+
+        // Toast
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+    error: function () {
+      Toast.fire({
+        icon: 'error',
+        title: 'خطا در اتصال به سرور',
+      });
+    }
+  });
+}
+function changeAppointmentStatus(appointmentId, status) {
+  $.ajax({
+    url: `${domain}requests/appointment/changeStatus.php`,
+    type: "POST",
+    data: {
+      id: appointmentId,
+      status: status,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        const adminStatus = document.getElementById("appointmentAdminStatus" + appointmentId);
+        const finalStatus = document.getElementById("appointmentFinalStatus" + appointmentId);
+
+        if (adminStatus && response.adminStatusHtml) {
+          adminStatus.innerHTML = response.adminStatusHtml;
+        }
+        if (finalStatus && response.finalStatusHtml) {
+          finalStatus.innerHTML = response.finalStatusHtml;
+        }
+
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+    error: function () {
+      Toast.fire({
+        icon: "error",
+        title: "خطا در اتصال به سرور",
+      });
+    },
+  });
+}
+function createShippingPost(orderId) {
+  let shipping_code = $('input[name="shipping_code"]').val(),
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/order/createShippingCode.php`,
+    type: "POST",
+    data: {
+      shipping_code,
+      orderId
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        document.getElementById('shipping_code'+orderId).innerText=response.shipping_code;
+        //setTimeout(() => location.replace("management"), 3000);
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function updatePages(id) {
+  let title_page = $('input[name="title_page"]').val(),
+      keywords = $('input[name="keywords"]').val(),
+      description = $('input[name="description"]').val(),
+      schema = $('input[name="schema"]').val(),
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/pages/update.php`,
+    type: "POST",
+    data: {
+      title_page,
+      keywords,
+      description,
+      schema,
+      id
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    },
+  });
+}
+function updateComment(id) {
+  let text_admin = $('textarea[name="text_admin"]').val(),
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/comment/update.php`,
+    type: "POST",
+    data: {
+      text_admin,
+      id
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    },
+  });
+}
+function statusComment(id, status) {
+    $.ajax({
+        url: `${domain}requests/comment/status.php`,
+        type: "POST",
+        data: {
+            id,
+            status,
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if (response.status == 200) {
+                if (status === 1) {
+                    document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
+                    `;
+                    document
+                        .getElementById("changeStatusInput" + id)
+                        .setAttribute(
+                            "onclick",
+                            `statusComment(${id}, 2)`
+                        );
+                } else {
+                    document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر فعال</span>
+                    `;
+                    document
+                        .getElementById("changeStatusInput" + id)
+                        .setAttribute(
+                            "onclick",
+                            `statusComment(${id}, 1)`
+                        );
+                }
+                Toast.fire({
+                    icon: response.type,
+                    title: response.text,
+                });
+            } else {
+                Toast.fire({
+                    icon: response.type,
+                    title: response.text,
+                });
+            }
+        },
+    });
+}
+function exportDayliSales() {
+  $.ajax({
+    url: `${domain}requests/reports/check-dayli-export.php`,
+    type: "POST",
+    success: function (res) {
+      res = JSON.parse(res);
+      if (res.status === 200) {
+        console.log('/');
+        window.location.href =
+            `${domain}admin/reports/dayli`;
+      }
+    }
+  });
+}
+function updateCategorySort(id, newSort) {
+
+  newSort = parseInt(newSort);
+
+  let currentRow = $('tr[data-id="' + id + '"]');
+  let oldSort = parseInt(currentRow.data('sort'));
+
+  $.ajax({
+    url: `${domain}requests/category/update-sort.php`,
+    type: "POST",
+    data: {
+      id: id,
+      sort: newSort
+    },
+    success: function (response) {
+
+      response = JSON.parse(response);
+
+      if (response.status !== 200) {
+        Toast.fire({
+          icon: 'error',
+          title: 'خطا در ذخیره ترتیب'
+        });
+
+        // rollback
+        currentRow.find('input[type=number]').val(oldSort);
+        return;
+      }
+
+      /**
+       * پیدا کردن ردیفی که sort جدید رو داشته
+       */
+      let targetRow = $('tr[data-sort="' + newSort + '"]');
+
+      if (targetRow.length) {
+
+        // جابه‌جایی ردیف‌ها
+        if (newSort > oldSort) {
+          targetRow.after(currentRow);
+        } else {
+          targetRow.before(currentRow);
+        }
+
+        // آپدیت sort ردیف دوم
+        targetRow
+            .data('sort', oldSort)
+            .find('input[type=number]').val(oldSort);
+      }
+
+      // آپدیت sort ردیف فعلی
+      currentRow.data('sort', newSort);
+
+      Toast.fire({
+        icon: 'success',
+        title: 'ترتیب نمایش با موفقیت ذخیره شد'
+      });
+    }
+  });
+}
+function typeCategory(id, status) {
+  $.ajax({
+    url: `${domain}requests/category/type.php`,
+    type: "POST",
+    data: {
+      id: id,
+      status: status
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        // تغییر ظاهر وضعیت
+        const statusLabel = document.getElementById("typeShow" + id);
+        const statusInput = document.getElementById("changeStatusInputType" + id);
+        if (status === 1) {
+          statusLabel.innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-success label-inline">نمایش</span>
+                    `;
+          statusInput.setAttribute("onclick", `typeCategory(${id}, 2)`);
+          statusInput.checked = true;
+        } else {
+          statusLabel.innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-warning label-inline">عدم نمایش</span>
+                    `;
+          statusInput.setAttribute("onclick", `typeCategory(${id}, 1)`);
+          statusInput.checked = false;
+        }
+        Toast.fire({
+          icon: response.type,
+          title: response.text + (status === 2 ? ' (زیر‌دسته‌ها هم غیرفعال شدند)' : '')
+        });
+      } else {
+        // پیام خطا
+        Toast.fire({
+          icon: response.type,
+          title: response.text
+        });
+      }
+    },
+    error: function () {
+      Toast.fire({
+        icon: 'error',
+        title: 'ارتباط با سرور برقرار نشد'
+      });
+    }
+  });
+}
+function createNotifications() {
+  let title = $('input[name="title"]').val(),
+      description = $('input[name="description"]').val(),
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/notifications/create.php`,
+    type: "POST",
+    data: {
+      title,
+      description,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        setTimeout(() => location.replace("management"), 3000);
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    },
+  });
+}
+function statusNotifications(id, status) {
+  $.ajax({
+    url: `${domain}requests/notifications/status.php`,
+    type: "POST",
+    data: {
+      id,
+      status,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        if (status === 1) {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusNotifications(${id}, 2)`
+              );
+        } else {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusNotifications(${id}, 1)`
+              );
+        }
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function delteNotifications(Id) {
+
+  $.ajax({
+    url: `${domain}requests/notifications/delete.php`,
+    type: "POST",
+    data: {
+      Id,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        document.getElementById('deleteNotifications'+Id).style.display="none";
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function updateImageCategoryBlog(id) {
+  let formData = new FormData();
+  formData.append("image", $("#inputFile")[0].files[0]);
+  formData.append("id", id);
+  document.getElementById('uploadedFileName').innerHTML = $("#inputFile")[0].files[0].name;
+
+  $.ajax({
+    type: "POST",
+    enctype: 'multipart/form-data',
+    url: `${domain}requests/blogCategory/photo.php`,
+    data: formData,
+    processData: false,
+    contentType: false,
+    cache: false,
+    timeout: 600000,
+    success: function (response) {
+      let timerInterval;
+
+      Swal.fire({
+        title: 'در حال ویرایش تصویر دسته بندی مقالات',
+        html: 'لطفا منتظر بمانید',
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      }).then((result) => {
+        response = JSON.parse(response);
+        if (response.status == 200) {
+          Toast.fire({
+            icon: response.type,
+            title: response.text,
+          });
+          document.getElementById("myform").reset();
+
+          let deleteImageBlog = document.querySelector('#deleteImageBlog');
+          let deleteImageBlog2 = document.querySelector('#deleteImageBlog2');
+          let buttonImage = document.querySelector('#buttonImage');
+          let buttonImage2 = document.querySelector('#buttonImage2');
+
+          if (response.oldImage == 'no') {
+            deleteImageBlog.classList.remove('d-none');
+            buttonImage.classList.remove('d-none');
+          }
+          if (buttonImage2 && response.oldImage != 'no') {
+            buttonImage2.classList.remove('d-none');
+            deleteImageBlog2.classList.remove('d-none');
+          }
+          document.getElementById('imageOld').src = "../../" + response.src;
+        } else {
+          Toast.fire({
+            icon: response.type,
+            title: response.text,
+          });
+        }
+      });
+    }
+  });
+}
+function createTrust() {
+  let title = $('input[name="title"]').val(),
+      description = $('input[name="description"]').val(),
+      image = $('input[name="image"]')[0].files[0],
+      getErrors = document.getElementById("getErrors");
+  let formData = new FormData();
+  formData.append("title", title);
+  formData.append("description", description);
+  if (image) {
+    formData.append("image", image);
+  }
+  $.ajax({
+    url: `${domain}requests/trust/create.php`,
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status === 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        setTimeout(() => location.replace("management"), 3000);
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    },
+  });
+}
+function statusTrust(id, status) {
+  $.ajax({
+    url: `${domain}requests/trust/status.php`,
+    type: "POST",
+    data: {
+      id,
+      status,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        if (status === 1) {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusTrust(${id}, 2)`
+              );
+        } else {
+          document.getElementById("statusShow" + id).innerHTML = `
+                        <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر فعال</span>
+                    `;
+          document
+              .getElementById("changeStatusInput" + id)
+              .setAttribute(
+                  "onclick",
+                  `statusTrust(${id}, 1)`
+              );
+        }
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function delteTrust(Id) {
+
+  $.ajax({
+    url: `${domain}requests/trust/delete.php`,
+    type: "POST",
+    data: {
+      Id,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        document.getElementById('deleteTrust'+Id).style.display="none";
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function AddNewTicketAdmin($userId) {
+  let formData = new FormData();
+  formData.append("fileUrl", $("#dropzone-file")[0].files[0]);
+  formData.append("text", $('input[name="text"]').val());
+  formData.append("title", $('input[name="title"]').val());
+  formData.append("userId", $userId);
+  $.ajax({
+    enctype: "multipart/form-data",
+    url: `${domain}requests/tickets/createNewTicketAdmin.php`,
+    type: "POST",
+    processData: false,
+    contentType: false,
+    cache: false,
+    data: formData,
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        setTimeout(() => location.replace("/admin/tickets/management"), 2000);
+      } else {
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      }
+    },
+  });
+}
+function createBlog() {
+  const form = document.getElementById('blogId');
+  const titleInput = form.querySelector('input[name="title"]');
+  const imageInput = form.querySelector('input[name="image"]');
+  // بررسی انتخاب تصویر
+  if (!imageInput.files || imageInput.files.length === 0) {
+    $('#imageError').text('لطفاً یک تصویر برای مقاله انتخاب کنید.');
+
+    Toast.fire({
+      icon: 'warning',
+      title: 'لطفاً تصویر مقاله را انتخاب کنید.'
+    });
+
+    return;
+  }
+  const imageFile = imageInput.files[0];
+
+  // محدودیت حجم تصویر، در صورت نیاز
+  const maxFileSize = 5 * 1024 * 1024; // پنج مگابایت
+
+  if (imageFile.size > maxFileSize) {
+    $('#imageError').text('حجم تصویر نباید بیشتر از ۵ مگابایت باشد.');
+
+    Toast.fire({
+      icon: 'warning',
+      title: 'حجم تصویر زیاد است.'
+    });
+
+    return;
+  }
+
+  const formData = new FormData(form);
+
+  // دریافت متن Summernote
+  let description = '';
+
+  if ($('#productDescription').hasClass('summernote')) {
+    description = $('#productDescription').summernote('code');
+  } else {
+    description = $('#productDescription').val();
+  }
+
+  formData.set('description', description);
+
+  // تولید اسلاگ از عنوان مقاله
+  const title = titleInput.value.trim();
+
+  if (typeof createSlug === 'function') {
+    formData.set('slug', createSlug(title));
+  }
+
+  // اطمینان از ارسال یک فایل با نام image
+  formData.delete('images[]');
+  formData.delete('images');
+  formData.delete('image');
+  formData.append('image', imageFile);
+
+  $.ajax({
+    url: `${domain}requests/blog/create.php`,
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+
+    beforeSend: function () {
+      $('.btn-primary')
+          .prop('disabled', true)
+          .addClass('disabled');
+
+      Toast.fire({
+        icon: 'info',
+        title: 'در حال ایجاد مقاله...'
+      });
+    },
+
+    success: function (response) {
+      let result;
+
+      try {
+        result = typeof response === 'string'
+            ? JSON.parse(response)
+            : response;
+      } catch (error) {
+        console.error('پاسخ نامعتبر از سرور:', response);
+
+        Toast.fire({
+          icon: 'error',
+          title: 'پاسخ سرور نامعتبر است.'
+        });
+
+        return;
+      }
+
+      if (Number(result.status) === 200) {
+        Toast.fire({
+          icon: 'success',
+          title: result.text || 'مقاله با موفقیت ایجاد شد.'
+        });
+
+        setTimeout(function () {
+          location.reload();
+        }, 2000);
+
+        return;
+      }
+
+      $('#getErrors').html(
+          result.error || result.text || 'ایجاد مقاله انجام نشد.'
+      );
+
+      Toast.fire({
+        icon: result.type || 'error',
+        title: result.text || 'خطایی رخ داده است.'
+      });
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    },
+
+    error: function (xhr, status, error) {
+      console.error('AJAX Error:', {
+        status: status,
+        error: error,
+        response: xhr.responseText
+      });
+
+      Toast.fire({
+        icon: 'error',
+        title: 'خطا در ارتباط با سرور رخ داد.'
+      });
+    },
+
+    complete: function () {
+      $('.btn-primary')
+          .prop('disabled', false)
+          .removeClass('disabled');
+    }
+  });
+}
+function updateImageBannerBlog(id) {
+  let formData = new FormData();
+  formData.append("image", $("#inputFile")[0].files[0]);
+  formData.append("id", id);
+  document.getElementById('uploadedFileName').innerHTML = $("#inputFile")[0].files[0].name;
+
+  $.ajax({
+    type: "POST",
+    enctype: 'multipart/form-data',
+    url: `${domain}requests/blog/banner.php`,
+    data: formData,
+    processData: false,
+    contentType: false,
+    cache: false,
+    timeout: 600000,
+    success: function (response) {
+      let timerInterval;
+
+      Swal.fire({
+        title: 'در حال ویرایش تصویر بنر تبلیغاتی',
+        html: 'لطفا منتظر بمانید',
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      }).then((result) => {
+        response = JSON.parse(response);
+        if (response.status == 200) {
+          Toast.fire({
+            icon: response.type,
+            title: response.text,
+          });
+          document.getElementById("myform").reset();
+
+          let deleteImageBlog = document.querySelector('#deleteImageBlog');
+          let deleteImageBlog2 = document.querySelector('#deleteImageBlog2');
+          let buttonImage = document.querySelector('#buttonImage');
+          let buttonImage2 = document.querySelector('#buttonImage2');
+
+          if (response.oldImage == 'no') {
+            deleteImageBlog.classList.remove('d-none');
+            buttonImage.classList.remove('d-none');
+          }
+          if (buttonImage2 && response.oldImage != 'no') {
+            buttonImage2.classList.remove('d-none');
+            deleteImageBlog2.classList.remove('d-none');
+          }
+          document.getElementById('imageOld').src = "../../" + response.src;
+        } else {
+          Toast.fire({
+            icon: response.type,
+            title: response.text,
+          });
+        }
+      });
+    }
+  });
+}
+function updateLinkBlog(id) {
+  let link_blog = $('input[name="link_blog"]').val(),
+      getErrors = document.getElementById("getErrors");
+  $.ajax({
+    url: `${domain}requests/blog/updateLink.php`,
+    type: "POST",
+    data: {
+      link_blog,
+      id,
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      if (response.status == 200) {
+        getErrors.innerHTML = "";
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+      } else {
+        getErrors.innerHTML = response.error;
+        Toast.fire({
+          icon: response.type,
+          title: response.text,
+        });
+        scroll(150, 1000);
+      }
+    },
+  });
+}
+

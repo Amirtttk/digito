@@ -86,12 +86,22 @@
                                                     ?>
                                                     <tr id="deleteForwarding<?php echo $AllForwarding['id']?>">
                                                         <td><?= $keyNumber++ ?></td>
-                                                        <td><?= $AllForwarding['min_weight'] ?></td>
-                                                        <td><?= $AllForwarding['max_weight'] ?></td>
-                                                        <td><?= $AllForwarding['base_post_cost'] ?></td>
-                                                        <td><?= $AllForwarding['insurance_cost'] ?></td>
-                                                        <td><?= $AllForwarding['added_value_tax'] ?></td>
-                                                        <td></td>
+                                                        <?php
+                                                        $minWeight          = (float) $AllForwarding['min_weight'];
+                                                        $maxWeight          = (float) $AllForwarding['max_weight'] ;
+                                                        $basePostCost       = (float) $AllForwarding['base_post_cost'];
+                                                        $insuranceCost      = (float) $AllForwarding['insurance_cost'];
+                                                        $addedValueTax      = (float) $AllForwarding['added_value_tax'];
+
+                                                        $totalPrice =  $basePostCost + $insuranceCost + $addedValueTax;
+                                                        ?>
+
+                                                        <td><?= ($minWeight) ?></td>
+                                                        <td><?= $maxWeight ; ?></td>
+                                                        <td><?= number_format($basePostCost) ?></td>
+                                                        <td><?= number_format($insuranceCost) ?></td>
+                                                        <td><?= number_format($addedValueTax) ?></td>
+                                                        <td><strong><?= number_format($totalPrice) ?></strong></td>
                                                         <td>
                                                             <button type="button" onclick="deleteForwarding(<?= $AllForwarding['id'] ?>)" class="btn btn-icon btn-danger btn-sm mr-2 " data-toggle = "tooltip" title = "حذف" data-theme = "dark">
                                                             <span class="svg-icon svg-icon-dark svg-icon-2x">
@@ -108,31 +118,15 @@
                                                     </tr>
                                                     <?php
                                                 }
-                                            } else {
-                                                ?>
-                                                <div class="alert alert-warning col-12 col-md-12 mt-5">
-                                                    <h3 class="text-center">
-                                                        هیچ نرخنامه پستی وجود ندارد
-                                                    </h3>
-                                                </div>
-                                                <?php
                                             }
                                             ?>
-
-
-
                                             <br>
                                         </tbody>
-
                                     </table>
-
                                 </div>
-
                             </div>
                         </div>
                     </div>
-                    <!--begin: جدول داده ها-->
-                    <!--end: جدول داده ها-->
                 </div>
             </div>
         </div>

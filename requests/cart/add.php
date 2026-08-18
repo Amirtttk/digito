@@ -14,7 +14,7 @@ if (!$getOneProduct) {
 
 // تصویر
 $image = !empty($getOneProduct['main_image'])
-    ? "public/images/products/" . $getOneProduct['main_image']
+    ? getProductImageUrl($getOneProduct['main_image'])
     : '';
 
 // کلید سبد (خیلی مهم)
@@ -77,15 +77,14 @@ if ($variant_id !== 'default' && !empty($getOneProduct['price'])) {
  * کاربر لاگین
  * ======================
  */
+//dd($variant_id);
 if (!empty($_SESSION['user_sending'])) {
-
-
-    $existing = getOneRecordFromCart(
+    //dd($_SESSION['user_sending'],$product_id,$variant_id);
+    $existing = getOneRecordFromCart2(
         $_SESSION['user_sending'],
         $product_id,
         $variant_id
     );
-
     if ($existing) {
         $items = getUserRecordFromCart($_SESSION['user_sending']);
         $totalQuantity = array_sum(array_column($items, 'quantity'));

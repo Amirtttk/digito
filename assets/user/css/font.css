@@ -1,4 +1,11 @@
 @font-face {
+  font-family: yekanBakhThin;
+  src: url('../font/YekanBakhFaNum-Thin.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
   font-family: yekanBakhLight;
   src: url('../font/YekanBakhFaNum-Light.woff2') format('woff2');
   font-weight: 500;
@@ -47,6 +54,51 @@
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: Khaton;
+  src: url('../font/Khaton.ttf') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: PeydaRegular;
+  src: url('../font/PeydaFaNumWeb-Regular.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: PeydaMedium;
+  src: url('../font/PeydaFaNumWeb-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: PeydaSemiBold;
+  src: url('../font/PeydaFaNumWeb-SemiBold.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: PeydaBold;
+  src: url('../font/PeydaFaNumWeb-Bold.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: PeydaBlack;
+  src: url('../font/PeydaFaNumWeb-Black.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 body{
   font-family: yekanBakhSemiBold;
 }

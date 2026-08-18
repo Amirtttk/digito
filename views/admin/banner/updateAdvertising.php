@@ -54,18 +54,6 @@ $getOneBanner = getOneAdvertising(GET('id'));
                                         <div>
                                             <div class="form-group row">
                                                 <div class="col-lg-4">
-                                                    <label>عنوان : </label>
-                                                    <input name="title" type="text" value="<?= $getOneBanner['title'] ?>" class="form-control"
-                                                           data-v-message="عنوان نمیتواند خالی بماند" required
-                                                           placeholder="عنوان را وارد کنید" />
-                                                </div>
-                                                <div class="col-lg-4">
-                                                    <label>توضیحات : </label>
-                                                    <input name="description" type="text" value="<?= $getOneBanner['description'] ?>" class="form-control"
-                                                           data-v-message="لینک نمیتواند خالی بماند" required
-                                                           placeholder="لینک را وارد کنید" />
-                                                </div>
-                                                <div class="col-lg-4">
                                                     <label>لینک : </label>
                                                     <input name="link" type="text" value="<?= $getOneBanner['link'] ?>" class="form-control"
                                                            data-v-message="لینک نمیتواند خالی بماند" required
@@ -96,7 +84,7 @@ $getOneBanner = getOneAdvertising(GET('id'));
                                         <div class="card-footer">
                                             <div class="row">
                                                 <div class="col-lg-6">
-                                                    <?php if ($getOneBanner['image'] != "http://public.rastasalamat.test/no_photo.png") { ?>
+                                                    <?php if ($getOneBanner['image_name'] != "http://public.rastasalamat.test/no_photo.png") { ?>
                                                         <button id="buttonImage2" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                                                             مشاهده تصویر قبلی
                                                         </button>
@@ -115,13 +103,7 @@ $getOneBanner = getOneAdvertising(GET('id'));
                                                                     </button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <?php
-                                                                    $thumbnail = '';
-                                                                    if ($getOneBanner['image']) {
-                                                                        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getOneBanner['image']);
-                                                                    }
-                                                                    ?>
-                                                                    <img id="imageOld" class="w-100" height="300" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                                    <img id="imageOld" class="w-100" height="300" src="../../public/images/advertising_banner/<?= $getOneBanner['image_name']; ?>">
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">فهمیدم</button>

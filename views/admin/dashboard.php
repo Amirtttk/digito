@@ -19,16 +19,13 @@
                     <h3 class="card-label">داشبورد<span class="text-danger"></span></h3>
                 </div>
             </div>
-            <div class="tab-pane fade show active" id="kt_tab_pane_7_1" role="tabpanel" aria-labelledby="kt_tab_pane_7_1">
-                <div class="card-header">
 
-                </div>
-                </div>
-            </div>
-        </div>
+    </div>
+</div>
 <?php
 $pageTitle = " داشبورد پنل " . TYPES_USERS[$_SESSION['admin_info']['userType']][1];
 $pageScript = "
+    <script src='../../assets/admin/js/pages/widgets.js'></script>
     <script src='../../assets/admin/js/sweetalert.js'></script>
     <script src='../../assets/admin/js/main.js'></script>
     <script>
@@ -69,6 +66,7 @@ $pageScript = "
             }
              
             </script>
+ 
 ";
 $pageLink = "
     <link href='../../assets/admin/css/style.bundle.rtl.css' rel='stylesheet' type='text/css' />

@@ -7,7 +7,7 @@
             <!--begin::اطلاعات-->
             <div class="d-flex align-items-center flex-wrap mr-2">
                 <!--begin::Page Title-->
-                <h5 class="card-label">ایجاد مقاله </h5>
+                <h5 class="card-label">ایجاد دسته بندی </h5>
                 <!--end::Page Title-->
             </div>
             <!--end::اطلاعات-->
@@ -21,14 +21,14 @@
                     <div class="card-header">
                         <div class="card-title">
                             <span class="card-icon"><i class="flaticon2-favourite text-primary"></i></span>
-                            <h3 class="card-label">ایجاد مقاله جدید </h3>
+                            <h3 class="card-label">ایجاد دسته بندی جدید </h3>
                         </div>
                         <div class="card-toolbar">
                             <ul class="nav nav-tabs nav-bold nav-tabs-line">
                                 <li class="nav-item">
                                     <a class="nav-link active" data-toggle="tab" href="#kt_tab_pane_7_1">
                                         <span class="nav-icon"><i class="fa fa-info"></i></span>
-                                        اطلاعات مقاله
+                                        اطلاعات دسته بندی
                                     </a>
                                 </li>
                             </ul>
@@ -47,7 +47,10 @@
                                                 <label>عنوان دسته:</label>
                                                 <input name="title" type="text" class="form-control" required placeholder="عنوان دسته را وارد کنید" />
                                             </div>
-
+                                            <div class="col-lg-4">
+                                                <label>عنوان انگلیسی:</label>
+                                                <input name="english_title" type="text" class="form-control" required placeholder="عنوان انگلیسی را وارد کنید" />
+                                            </div>
                                             <div class="col-lg-4">
                                                 <label>دسته والد:</label>
                                                 <select name="parent_id" class="form-control">
@@ -63,6 +66,8 @@
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
+                                        </div>
+                                        <div class="form-group row">
                                             <div class="col-lg-4" id="imageField">
                                                 <label>تصویر دسته:</label>
                                                 <label class="upload-file p-3 w-100 d-flex align-items-center">
@@ -92,7 +97,7 @@
 <!--end::Content-->
 
 <?php
-$pageTitle = "ایجاد  مقاله جدید ";
+$pageTitle = "ایجاد  دسته بندی جدید ";
 $pageScript = "
     <script src='../../assets/admin/js/sweetalert.js'></script>
     <script src='../../assets/admin/js/main.js'></script>

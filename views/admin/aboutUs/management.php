@@ -50,13 +50,11 @@
                                             $keyNumber = 1;
                                             $getAllaAboutUs = getAllaAboutUs();
                                             if ($getAllaAboutUs) {
-                                                    if ($getAllaAboutUs['image']){
-                                                        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getAllaAboutUs['image']);
-                                                    }
+
                                                     ?>
                                                     <tr>
                                                         <td><?= $keyNumber++ ?></td>
-                                                        <td><img width="100" height="100" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                        <td><img width="100" height="100" src="../../public/images/aboutUs/<?= $getAllaAboutUs['image_name']; ?>">
                                                         </td>
                                                         <td style="min-width:150px;"><?php  echo "برای نمایش توضیحات وارد ویرایش شوید";?></td>
                                                         <td>

@@ -1,6 +1,5 @@
 <?php
 $getOneBlogCategories = getOneBlogCategories(GET('id'));
-$getAllBlogCategories = getAllBlogCategories();
 ?>
 <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
     <div class="subheader py-2 py-lg-4 subheader-solid" id="kt_subheader">
@@ -46,17 +45,6 @@ $getAllBlogCategories = getAllBlogCategories();
                                             <label>عنوان دسته‌بندی:</label>
                                             <input name="title" type="text" value="<?= $getOneBlogCategories['title'] ?>" class="form-control" placeholder="عنوان دسته‌بندی را وارد کنید" />
                                         </div>
-                                        <div class="col-lg-6">
-                                            <label>انتخاب دسته مادر:</label>
-                                            <select name="parent_id" class="form-control">
-                                                <option value="0">ندارد (دسته مادر)</option>
-                                                <?php foreach ($getAllBlogCategories as $category): ?>
-                                                    <option value="<?= $category['id'] ?>" <?= $getOneBlogCategories['parent_id'] == $category['id'] ? 'selected' : '' ?>>
-                                                        <?= $category['title'] ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-footer">
@@ -69,7 +57,7 @@ $getAllBlogCategories = getAllBlogCategories();
                                 <div class="row p-3">
                                     <label class="upload-file py-3 w-100">
                                         <i class="fa fa-4x fa-camera"></i>
-                                        <input onchange="updateCategoryImage(<?= $_GET['id'] ?>)" class="form-control custom-file-input" name="image" id="inputFile" accept="png,jpg,jpeg" type="file" />
+                                        <input onchange="updateImageCategoryBlog(<?= $_GET['id'] ?>)" class="form-control custom-file-input" name="image" id="inputFile" accept="png,jpg,jpeg" type="file" />
                                         <span class="d-block mt-3" id="uploadedFileName">تصویر را انتخاب کنید.</span>
                                     </label>
                                 </div>
@@ -85,11 +73,6 @@ $getAllBlogCategories = getAllBlogCategories();
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <a href="<?= $getOneCategory['image'] ?>" target="_blank">
-                                                        <img src="<?= $getOneCategory['image'] ?>" alt="تصویر دسته‌بندی" class="img-fluid">
-                                                    </a>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">فهمیدم</button>

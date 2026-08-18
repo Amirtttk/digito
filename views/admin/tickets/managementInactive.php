@@ -53,7 +53,6 @@
                                             $getAllTicketInactive = getAllTicketInactive();
                                             if ($getAllTicketInactive) {
                                                 foreach ($getAllTicketInactive as $key => $AllTicketInactive) {
-                                                    $getChatTickets = getChatTicketsFetch($AllTicketInactive['id']);
                                                     $date = jdate("r", (dateToTimestamp($AllTicketInactive['timeSend'])));
                                                     $date_org = $date;
                                                     ?>
@@ -63,7 +62,7 @@
                                                         <td>#<?= $AllTicketInactive['code_tickets'] ?></td>
                                                         <td style="min-width:110px;"><?= $date_org ?></td>
                                                         <td style="min-width:120px;"><?php
-                                                            if ($getChatTickets['sender'] == 1) {
+                                                            if ($AllTicketInactive['last_sender'] == 1) {
                                                                 ?>
                                                                 <span
                                                                         class="label label-lg font-weight-bold label-light-success label-inline">پاسخ داده شده </span>
@@ -118,7 +117,7 @@
                                                 ?>
                                                 <div class="alert alert-warning col-12 col-md-12">
                                                     <h3 class="text-center">
-                                                        هیچ مقاله ای وجود ندارد
+                                                        هیچ تیکتی وجود ندارد
                                                     </h3>
                                                 </div>
                                                 <?php

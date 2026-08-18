@@ -50,14 +50,11 @@
                                         $getAllAdvertisingBanner = getAllAdvertisingBanner();
                                         if ($getAllAdvertisingBanner) {
                                             foreach ($getAllAdvertisingBanner as $key => $item) {
-                                                if ($item['image']){
-                                                    $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $item['image']);
-                                                }
                                                 ?>
                                                 <tr id="deleteBanner<?php echo $item['id']?>">
                                                     <td><?= $keyNumber++ ?></td>
                                                     <td>
-                                                        <img width="100" height="70" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                        <img width="100" height="70" src="../../public/images/advertising_banner/<?= $item['image_name']; ?>">
                                                     </td>
                                                     <td style="min-width:80px;" id="statusShow<?= $item['id'] ?>">
                                                         <?php

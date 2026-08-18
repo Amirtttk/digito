@@ -3,6 +3,20 @@ function dd(...$data)
 {
     die(var_dump($data));
 }
+function faToEn($string)
+{
+    $fa = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    $en = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    return str_replace($fa, $en, $string);
+}
+function jalaliToGregorianDate($date)
+{
+    $date = faToEn($date);
+    [$y, $m, $d] = explode('/', $date);
+    $g = jalali_to_gregorian($y, $m, $d);
+    // همیشه Y-m-d با صفر پیشوند؛ بدون آن regex تاریخ در چک انقضا fail می‌شود
+    return sprintf('%04d-%02d-%02d', (int) $g[0], (int) $g[1], (int) $g[2]);
+}
 function asset($path = null)
 {
     $path_host = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
@@ -15,6 +29,17 @@ function url($path = null)
     $path_host = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
     //For Linux And Windows
     return $path_host . '/' . ltrim($path, '/');
+}
+function getProductImageUrl($pathOrFilename)
+{
+    if (empty($pathOrFilename)) return '';
+    if (strpos($pathOrFilename, PATH_UPLOADS_DIR) === 0) {
+        return str_replace(PATH_UPLOADS_DIR, 'public/', $pathOrFilename);
+    }
+    if (strpos($pathOrFilename, 'images/products/') === 0) {
+        return 'public/' . $pathOrFilename;
+    }
+    return 'public/images/products/' . $pathOrFilename;
 }
 function curentPage($path = null)
 {
@@ -107,6 +132,25 @@ function dateToTimestamp(string $mydate)
     list($h, $m, $s) = explode(":", $time);
     return mktime($h, $m, $s, $month, $day, $yers);
 }
+function smartDateToTimestamp(string $date): int
+{
+    $date = trim($date);
+
+    // اگر زمان نداشت، ساعت را اضافه کن
+    if (!preg_match('/\d{2}:\d{2}/', $date)) {
+        $date .= ' 00:00:00';
+    }
+
+    $timestamp = strtotime($date);
+
+    if ($timestamp === false) {
+        throw new Exception('فرمت تاریخ نامعتبر است');
+    }
+
+    return $timestamp; // فقط int
+}
+
+
 function dateToTimestampBdata(string $mydate)
 {
     list($yers, $month, $day) = explode("-", $mydate);
@@ -352,6 +396,7 @@ function translate($word, $is_rule = false)
             'city_id' => 'شهر',
             'address' => 'آدرس ',
             'post_code' => 'کد پستی ',
+            'shipping_code' => 'کد رهگیری',
         ],
     ];
     if ($is_rule) {
@@ -389,6 +434,9 @@ function insertRecordToDatabase($tablename, $fileds)
         $result->execute();
         return true;
     } catch (PDOException $e) {
+        if (defined('DEBUG_PDO') && constant('DEBUG_PDO')) {
+            throw $e;
+        }
         return false;
     }
 }
@@ -449,31 +497,41 @@ function returnItemProducts($carts)
     }
     return $itemssCart;
 }
-function sumCart( $hide = false) {
+function sumCart($hide = false)
+{
     $sumPrice = 0;
 
-    // ===== کاربر لاگین =====
-    if (isset($_SESSION['user_sending'])){
+    // ===== اگر کاربر لاگین است =====
+    if (isset($_SESSION['user_sending'])) {
         $cartItems = getUserRecordFromCart($_SESSION['user_sending']);
-        if (!empty($cartItems)) {
-            foreach ($cartItems as $item) {
-
-                $price = floatval($item['discount'] ?? $item['price']);
-                $sumPrice += intval($item['quantity']) * $price;
-            }
-        }
+    } else {
+        $cartItems = $_SESSION['cart'] ?? [];
     }
-    // ===== کاربر مهمان =====
-    else {
-        if (!empty($_SESSION['cart'])) {
-            foreach ($_SESSION['cart'] as $item) {
-                $price = floatval($item['discount'] ?? $item['price']);
-                $sumPrice += intval($item['quantity']) * $price;
-            }
+
+    // ===== محاسبه جمع قیمت کالاها =====
+    if (!empty($cartItems)) {
+        foreach ($cartItems as $item) {
+            $price = floatval($item['discount'] ?? $item['price']);
+            $sumPrice += intval($item['quantity']) * $price;
         }
     }
 
-    return $hide ? number_format($sumPrice) : number_format($sumPrice);
+    // ===== بررسی کوپن فعال در جلسه =====
+    $discountAmount = 0;
+    if (!empty($_SESSION['checkout']['coupon'])) {
+        $discountAmount = (int) ($_SESSION['checkout']['coupon']['discount'] ?? 0);
+    }
+
+    // ===== اطمینان از اینکه تخفیف از جمع کل تجاوز نکند =====
+    if ($discountAmount > $sumPrice) {
+        $discountAmount = $sumPrice;
+    }
+
+    // ===== محاسبه قیمت نهایی =====
+    $finalPrice = max(0, $sumPrice - $discountAmount);
+
+    // ===== بازگرداندن خروجی (format برای نمایش) =====
+    return $hide ? $finalPrice : number_format($finalPrice);
 }
 function returnItemBlog($carts)
 {
@@ -482,17 +540,12 @@ function returnItemBlog($carts)
     if ($carts) {
         foreach ($carts as $key => $cart) {
             $getOneProduct = getOneBlog($cart["id"]);
-            $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $cart['image']);
-            $image = "http://public.test/image/no_image.png";
-            if ($getOneProduct["image"]) {
-                $image = $thumbnail ? "../../" . $thumbnail : '';
-            }
             $clean_text = strip_tags($getOneProduct['description']);
             $short_description = mb_substr($clean_text, 0, 500);
             $date = jdate("r", (dateToTimestamp($getOneProduct['createAt'])));
             $lastLogin = $date ;
             $itemssCart[$key]['id'] = $cart['id'];
-            $itemssCart[$key]['image'] = $image;
+            $itemssCart[$key]['image'] = '../../public/images/blog/' . $cart['image_name'];
             $itemssCart[$key]['title'] = $getOneProduct['title'];
             $itemssCart[$key]['slug'] = $getOneProduct['slug'];
             $itemssCart[$key]['description'] = $short_description;
@@ -508,8 +561,8 @@ function returnItemCart($carts)
     if ($carts) {
         foreach ($carts as $key => $cart) {
             $getOneProduct2 = getOneProduct($cart["product_id"]);
-            $image = !empty($getOneProduct['main_image'])
-                ? "public/images/products/" . $getOneProduct['main_image']
+            $image = !empty($getOneProduct2['main_image'])
+                ? getProductImageUrl($getOneProduct2['main_image'])
                 : '';
             $itemssCart[$key] = [
                 "product_id" => $cart['product_id'],
@@ -544,3 +597,97 @@ function getCartTotalQuantity() {
 
     return $total;
 }
+function calculateShippingCostForCart($hide = false)
+{
+    global $cn; // PDO
+
+    $totalWeight = 0; // گرم
+
+    /* ======================
+       محاسبه وزن کل سبد
+    ====================== */
+    if (!empty($_SESSION['user_sending'])) {
+        $cartItems = getUserRecordFromCart($_SESSION['user_sending']);
+           if ($cartItems){
+        foreach ($cartItems as $cartItem) {
+            $product = getOneProduct($cartItem['product_id']);
+
+            $volume = $product['length'] * $product['width'] * $product['height'];
+            $volumetricWeight = ($volume / 5000) * 1000; // گرم
+
+            $finalWeight = max(
+                (int)$product['actualWeight'],
+                (int)$volumetricWeight
+            );
+
+            $totalWeight += $finalWeight * (int)$cartItem['quantity'];
+        }
+        }
+    }
+
+    if ($totalWeight <= 0) {
+        return $hide ? 0 : '0 ';
+    }
+    $totalKilo = ceil($totalWeight / 1000);
+    $totalCost = 0;
+
+    /* ======================
+       تا ۵ کیلو
+    ====================== */
+    if ($totalKilo <= 5) {
+
+        // بازه دقیق همان کیلو
+        $weightForDb = $totalKilo * 1000;
+
+        $stmt = $cn->prepare("
+            SELECT * FROM forwarding
+            WHERE min_weight <= :weight
+              AND max_weight >= :weight
+            LIMIT 1
+        ");
+        $stmt->execute(['weight' => $weightForDb]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $totalCost =
+            (int)$row['base_post_cost'] +
+            (int)$row['insurance_cost'] +
+            (int)$row['added_value_tax'];
+    }
+
+    /* ======================
+       بالای ۵ کیلو
+    ====================== */
+    else {
+
+        // هزینه ۵ کیلو
+        $stmt = $cn->query("
+            SELECT * FROM forwarding
+            WHERE max_weight = 5000
+            LIMIT 1
+        ");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $baseFiveKilo =
+            (int)$row['base_post_cost'] +
+            (int)$row['insurance_cost'] +
+            (int)$row['added_value_tax'];
+
+        // کیلو اضافه
+        $extraKilo = $totalKilo - 5;
+
+        $stmtExtra = $cn->query("
+            SELECT base_post_cost
+            FROM forwarding
+            WHERE min_weight = 5001
+            LIMIT 1
+        ");
+        $extra = $stmtExtra->fetch(PDO::FETCH_ASSOC);
+
+        $totalCost = $baseFiveKilo + ($extraKilo * (int)$extra['base_post_cost']);
+    }
+
+    return $hide ? $totalCost : number_format($totalCost) . ' تومان';
+}
+
+
+

@@ -1,71 +1,174 @@
-<?php
-$getInformation = getInformation();
-?>
-<main class="mt-0 md:mt-8">
-    <!-- contact us -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-8 mx-4 md:mx-32 mb-8 md:my-12 border border-zinc-200 rounded-2xl p-4 md:p-8">
-      <div class="space-y-4 md:space-y-6">
+ <main class="my-4 xl:my-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-8 mx-2 md:mx-32 mb-8 md:my-12 border border-zinc-200 rounded-2xl p-2 md:p-8 bg-white">
+      <div class="space-y-4 md:space-y-6 order-2 lg:order-1">
+        <div class="w-full text-zinc-700 text-lg lg:text-2xl pb-6 pr-2 font-PeydaBold lg:font-PeydaBlack">
+          فـرم درخـواسـت 
+          <span class="text-primary-600">
+            تـمـاس
+          </span>
+          <p class="text-zinc-600 text-sm lg:text-sm font-yekanBakhRegular lg:font-yekanBakhSemiBold mt-2">
+            در ساعات غیر اداری لطفا فرم زیر را پر کنید
+            تا در اولین فرصت بررسی و پاسخ داده شود.
+          </p>
+        </div>
           <div id="getErrors"></div>
-        <div>
-          <p class="text-xs text-zinc-600 pb-3 pr-2">
+        <div class="text-s text-zinc-700 font-PeydaBold">
             نام و نام خانوادگی:
-          </p>
-          <input name="nameAndFamily" class="rounded-2xl rounded-tr-sm text-sm text-zinc-600 w-full bg-[#f0f0f0] px-5 py-3.5 placeholder:text-zinc-400 placeholder:text-xs focus:outline-1 focus:outline-zinc-300" type="text" placeholder="نام و نام خانوادگی شما...">
+            <input name="nameAndFamily" class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-3 mt-1 text-gray-700 transition-all outline-2 outline-transparent focus:outline-primary-500" type="text" placeholder="امیررضا کریمی">
         </div>
-        <div>
-          <p class="text-xs text-zinc-600 pb-3 pr-2">
-            شماره تلفن:
-          </p>
-          <input name="mobile" class="rounded-2xl rounded-tr-sm text-sm text-zinc-600 w-full bg-[#f0f0f0] px-5 py-3.5 placeholder:text-zinc-400 placeholder:text-xs focus:outline-1 focus:outline-zinc-300" type="text" placeholder="شماره تلفن شما...">
+        <div class="text-s text-zinc-700 font-PeydaBold">
+            شماره تماس:
+            <input name="mobile" class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-3 mt-1 text-gray-700 transition-all outline-2 outline-transparent focus:outline-primary-500 text-left" dir="ltr" type="number" placeholder="09XX-XXX-XXXX">
         </div>
-        <div>
-          <p class="text-xs text-zinc-600 pb-3 pr-2">
+        <div class="text-s text-zinc-700 font-PeydaBold">
             پیام شما:
-          </p>
-          <textarea name="text" class="rounded-2xl rounded-tr-sm text-sm text-zinc-600 w-full bg-[#f0f0f0] px-5 py-3.5 placeholder:text-zinc-400 placeholder:text-xs focus:outline-1 focus:outline-zinc-300 resize-none" placeholder="متن پیام شما..." cols="30" rows="5"></textarea>
+          <textarea name="text" class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-3 mt-1 text-gray-700 transition-all outline-2 outline-transparent focus:outline-primary-500" placeholder="متن پیام شما..." cols="30" rows="5"></textarea>
         </div>
-        <a onclick="createContactus()" class="bg-gradient-to-bl from-primary-500 to-primary-400 hover:opacity-90 hover:shadow-lg transition rounded-xl py-2.5 md:py-3 px-10 md:px-14 text-sm text-white">
-          ارسال
-        </a>
+        <button onclick="createContactus()" type="button" class="font-PeydaBold flex items-center py-3 px-6 text-white text-s bg-primary-500 rounded-xl xl:rounded-2xl hover:opacity-85 transition shadow-lg shadow-primary-500/50 relative cursor-pointer">
+          ثبت و ارسال
+        </button>
       </div>
-      <div>
-        <div class="text-zinc-600 text-sm md:text-base text-center border-b-2 border-b-primary-500 pb-1 w-fit mx-auto">
-          اطلاعات تماس
+      <div class="order-1 lg:order-2">
+        <div class="w-full text-zinc-700 text-lg lg:text-2xl text-center pb-6 pr-2 rounded-2xl font-PeydaBold lg:font-PeydaBlack">
+        اطـلـاعـات 
+        <span class="text-primary-600">
+            تـمـاس
+          </span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6 mt-6 mb-10">
-          <p class="flex gap-x-2 text-xs md:text-sm text-zinc-700">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path class="fill-zinc-600" fill-rule="evenodd" clip-rule="evenodd" d="M14.95 3.684L8.637 8.912C8.45761 9.06063 8.23196 9.14196 7.999 9.14196C7.76604 9.14196 7.54039 9.06063 7.361 8.912L1.051 3.684C1.01714 3.78591 0.999922 3.89261 1 4V12C1 12.2652 1.10536 12.5196 1.29289 12.7071C1.48043 12.8946 1.73478 13 2 13H14C14.2652 13 14.5196 12.8946 14.7071 12.7071C14.8946 12.5196 15 12.2652 15 12V4C15.0004 3.89267 14.9835 3.78597 14.95 3.684ZM2 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V12C16 12.5304 15.7893 13.0391 15.4142 13.4142C15.0391 13.7893 14.5304 14 14 14H2C1.46957 14 0.960859 13.7893 0.585786 13.4142C0.210714 13.0391 0 12.5304 0 12V4C0 3.46957 0.210714 2.96086 0.585786 2.58579C0.960859 2.21071 1.46957 2 2 2ZM1.79 3L7.366 7.603C7.54459 7.75051 7.76884 7.83144 8.00046 7.83199C8.23209 7.83254 8.45672 7.75266 8.636 7.606L14.268 3H1.79Z" fill="black"/>
-            </svg>
-            ایمیل: <?= $getInformation['email'] ?>
-          </p>
-          <p class="flex gap-x-2 text-xs md:text-sm text-zinc-700">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path class="fill-zinc-600" d="M11.25 18C11.25 18.1989 11.329 18.3897 11.4697 18.5303C11.6103 18.671 11.8011 18.75 12 18.75C12.1989 18.75 12.3897 18.671 12.5303 18.5303C12.671 18.3897 12.75 18.1989 12.75 18V15C12.75 14.8011 12.671 14.6103 12.5303 14.4697C12.3897 14.329 12.1989 14.25 12 14.25C11.8011 14.25 11.6103 14.329 11.4697 14.4697C11.329 14.6103 11.25 14.8011 11.25 15V18Z" fill="black"/>
-              <path class="fill-zinc-600" fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C11.292 1.25 10.649 1.453 9.95 1.792C9.276 2.12 8.496 2.604 7.523 3.208L5.456 4.491C4.536 5.063 3.797 5.521 3.229 5.956C2.64 6.406 2.188 6.866 1.861 7.463C1.535 8.058 1.389 8.692 1.318 9.441C1.25 10.166 1.25 11.054 1.25 12.167V13.78C1.25 15.684 1.25 17.187 1.403 18.362C1.559 19.567 1.889 20.54 2.633 21.309C3.38 22.082 4.33 22.428 5.508 22.591C6.648 22.75 8.106 22.75 9.942 22.75H14.058C15.894 22.75 17.352 22.75 18.492 22.591C19.669 22.428 20.62 22.082 21.368 21.309C22.111 20.54 22.441 19.567 22.598 18.362C22.75 17.187 22.75 15.684 22.75 13.78V12.167C22.75 11.054 22.75 10.167 22.682 9.441C22.612 8.691 22.465 8.058 22.139 7.463C21.812 6.866 21.359 6.407 20.771 5.956C20.203 5.52 19.465 5.063 18.544 4.491L16.477 3.208C15.504 2.604 14.724 2.12 14.049 1.792C13.352 1.452 12.709 1.25 12 1.25ZM8.28 4.504C9.295 3.874 10.01 3.432 10.607 3.141C11.188 2.858 11.6 2.75 12 2.75C12.4 2.75 12.812 2.858 13.393 3.141C13.991 3.431 14.705 3.874 15.72 4.504L17.72 5.745C18.681 6.342 19.356 6.761 19.86 7.147C20.349 7.522 20.63 7.831 20.823 8.183C21.016 8.536 21.129 8.949 21.188 9.581C21.249 10.229 21.25 11.046 21.25 12.204V13.725C21.25 15.695 21.248 17.101 21.11 18.168C20.974 19.216 20.717 19.824 20.29 20.267C19.865 20.706 19.287 20.967 18.286 21.106C17.26 21.248 15.907 21.25 14 21.25H10C8.092 21.25 6.74 21.248 5.714 21.106C4.713 20.966 4.135 20.706 3.711 20.266C3.283 19.824 3.026 19.216 2.891 18.168C2.751 17.101 2.75 15.696 2.75 13.725V12.204C2.75 11.046 2.75 10.229 2.812 9.581C2.871 8.949 2.984 8.536 3.177 8.183C3.37 7.831 3.651 7.522 4.141 7.147C4.644 6.761 5.319 6.342 6.28 5.745L8.28 4.504Z" fill="black"/>
-            </svg>
-            کدپستی: <?= $getInformation['post_code'] ?>
-          </p>
-          <p class="flex gap-x-2 text-xs md:text-sm text-zinc-700">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path class="fill-zinc-600" d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="black"/>
-            </svg>
-            ساعت کاری: <?= $getInformation['working_hours'] ?>
-          </p>
-          <p class="flex gap-x-2 text-xs md:text-sm text-zinc-700">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path class="stroke-zinc-600" d="M15.5 11C15.5 11.4596 15.4095 11.9148 15.2336 12.3394C15.0577 12.764 14.7999 13.1499 14.4749 13.4749C14.1499 13.7999 13.764 14.0577 13.3394 14.2336C12.9148 14.4095 12.4596 14.5 12 14.5C11.5404 14.5 11.0852 14.4095 10.6606 14.2336C10.236 14.0577 9.85013 13.7999 9.52513 13.4749C9.20012 13.1499 8.94231 12.764 8.76642 12.3394C8.59053 11.9148 8.5 11.4596 8.5 11C8.5 10.0717 8.86875 9.1815 9.52513 8.52513C10.1815 7.86875 11.0717 7.5 12 7.5C12.9283 7.5 13.8185 7.86875 14.4749 8.52513C15.1313 9.1815 15.5 10.0717 15.5 11Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path class="stroke-zinc-600" d="M12 2C16.87 2 21 6.033 21 10.926C21 15.896 16.803 19.385 12.927 21.756C12.644 21.9153 12.3247 21.999 12 21.999C11.6753 21.999 11.356 21.9153 11.073 21.756C7.203 19.363 3 15.915 3 10.927C3 6.033 7.13 2 12 2Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-           آدرس: <?= $getInformation['address'] ?>
-          </p>
+        <div class="grid grid-cols-1 mt-6 mb-10">
+          <ul class="flex flex-col font-yekanBakhRegular">
+            <li class="flex gap-x-5 justify-between mb-5">
+              <div class="text-zinc-700 text-sm w-20 font-yekanBakhBold">
+               آدرس:
+              </div>
+              <a href="#" class="text-zinc-700 text-sm text-left">
+                سبزوار - خیابان اصلی - کوچه اصلی
+              </a>
+            </li>
+            <li class="flex gap-x-5 justify-between mb-4">
+              <div class="text-zinc-700 text-sm font-yekanBakhBold">
+                واحد فروش:
+              </div>
+              <a href="tel:09123456789" class="text-zinc-700 text-sm">
+                09123456789
+              </a>
+            </li>
+            <li class="flex gap-x-5 justify-between mb-4">
+              <div class="text-zinc-700 text-sm font-yekanBakhBold">
+               واحد پشتیبانی:
+              </div>
+              <a href="tel:09123456789" class="text-zinc-700 text-sm">
+                09123456789
+              </a>
+            </li>
+            <li class="flex gap-x-5 justify-between">
+              <div class="text-zinc-700 text-sm font-yekanBakhBold">
+                ساعات کاری:
+              </div>
+              <div class="text-zinc-700 text-sm">
+                8 تا 23
+              </div>
+            </li>
+          </ul>
         </div>
-        <iframe class="rounded-3xl w-full" title="map-iframe" src="https://neshan.org/maps/iframe/places/_b11_f_dW_e8#c36.216-57.677-17z-0p/36.21645956215151/57.67662111023142" width="600" height="300" allowFullScreen loading="lazy" ></iframe>
+        <div class="grid xl:grid-cols-2 gap-5 mb-5">
+            <a href="#" class="flex items-center gap-3 w-full group">
+                <div class="flex items-center justify-center
+                    h-full
+                    px-5
+                    rounded-2xl
+                    bg-zinc-100
+                    transition-all duration-300
+                    group-hover:bg-primary-500">
+                    <svg class="fill-zinc-500 group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#ffffff" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path></svg>
+                </div>
+                <div class="flex flex-col items-center justify-center
+                        w-full h-18
+                        rounded-2xl
+                        bg-zinc-100
+                        transition-all duration-300
+                        group-hover:bg-primary-500">
+                    <span class="text-zinc-800 group-hover:text-white font-yekanBakhBold mx-1 text-s lg:text-lg">
+                        اینستاگرام
+                    </span>
+                    <span class="text-zinc-500 group-hover:text-white text-xs lg:text-sm mt-1 font-yekanBakhRegular">
+                    instagram.com/notic.ir
+                    </span>
+                </div>
+            </a>
+            <a href="#" class="flex items-center gap-3 w-full group">
+                <div class="flex items-center justify-center
+                    h-full
+                    px-5
+                    rounded-2xl
+                    bg-zinc-100
+                    transition-all duration-300
+                    group-hover:bg-primary-500">
+                    <svg class="fill-zinc-500 group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#000000" viewBox="0 0 256 256"><path d="M214.75,211.71l-62.6-98.38,61.77-67.95a8,8,0,0,0-11.84-10.76L143.24,99.34,102.75,35.71A8,8,0,0,0,96,32H48a8,8,0,0,0-6.75,12.3l62.6,98.37-61.77,68a8,8,0,1,0,11.84,10.76l58.84-64.72,40.49,63.63A8,8,0,0,0,160,224h48a8,8,0,0,0,6.75-12.29ZM164.39,208,62.57,48h29L193.43,208Z"></path></svg>
+                </div>
+                <div class="flex flex-col items-center justify-center
+                        w-full h-18
+                        rounded-2xl
+                        bg-zinc-100
+                        transition-all duration-300
+                        group-hover:bg-primary-500">
+                    <span class="text-zinc-800 group-hover:text-white font-yekanBakhBold mx-1 text-s lg:text-lg">
+                        ایکس
+                    </span>
+                    <span class="text-zinc-500 group-hover:text-white text-xs lg:text-sm mt-1 font-yekanBakhRegular">
+                    x.com/notic.ir
+                    </span>
+                </div>
+            </a>
+            <a href="#" class="flex items-center gap-3 w-full group">
+                <div class="flex items-center justify-center
+                    h-full
+                    px-5
+                    rounded-2xl
+                    bg-zinc-100
+                    transition-all duration-300
+                    group-hover:bg-primary-500">
+                    <svg class="fill-zinc-500 group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#000000" viewBox="0 0 256 256"><path d="M228.88,26.19a9,9,0,0,0-9.16-1.57L17.06,103.93a14.22,14.22,0,0,0,2.43,27.21L72,141.45V200a15.92,15.92,0,0,0,10,14.83,15.91,15.91,0,0,0,17.51-3.73l25.32-26.26L165,220a15.88,15.88,0,0,0,10.51,4,16.3,16.3,0,0,0,5-.79,15.85,15.85,0,0,0,10.67-11.63L231.77,35A9,9,0,0,0,228.88,26.19Zm-61.14,36L78.15,126.35l-49.6-9.73ZM88,200V152.52l24.79,21.74Zm87.53,8L92.85,135.5l119-85.29Z"></path></svg>
+                </div>
+                <div class="flex flex-col items-center justify-center
+                        w-full h-18
+                        rounded-2xl
+                        bg-zinc-100
+                        transition-all duration-300
+                        group-hover:bg-primary-500">
+                    <span class="text-zinc-800 group-hover:text-white font-yekanBakhBold mx-1 text-s lg:text-lg">
+                        تلگرام
+                    </span>
+                    <span class="text-zinc-500 group-hover:text-white text-xs lg:text-sm mt-1 font-yekanBakhRegular">
+                    t.me/notic.ir
+                    </span>
+                </div>
+            </a>
+            <a href="#" class="flex items-center gap-3 w-full group">
+                <div class="flex items-center justify-center
+                    h-full
+                    px-5
+                    rounded-2xl
+                    bg-zinc-100
+                    transition-all duration-300
+                    group-hover:bg-primary-500">
+                    <svg class="fill-zinc-500 group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#000000" viewBox="0 0 256 256"><path d="M164.44,121.34l-48-32A8,8,0,0,0,104,96v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,145.05V111l25.58,17ZM234.33,69.52a24,24,0,0,0-14.49-16.4C185.56,39.88,131,40,128,40s-57.56-.12-91.84,13.12a24,24,0,0,0-14.49,16.4C19.08,79.5,16,97.74,16,128s3.08,48.5,5.67,58.48a24,24,0,0,0,14.49,16.41C69,215.56,120.4,216,127.34,216h1.32c6.94,0,58.37-.44,91.18-13.11a24,24,0,0,0,14.49-16.41c2.59-10,5.67-28.22,5.67-58.48S236.92,79.5,234.33,69.52Zm-15.49,113a8,8,0,0,1-4.77,5.49c-31.65,12.22-85.48,12-86,12H128c-.54,0-54.33.2-86-12a8,8,0,0,1-4.77-5.49C34.8,173.39,32,156.57,32,128s2.8-45.39,5.16-54.47A8,8,0,0,1,41.93,68c30.52-11.79,81.66-12,85.85-12h.27c.54,0,54.38-.18,86,12a8,8,0,0,1,4.77,5.49C221.2,82.61,224,99.43,224,128S221.2,173.39,218.84,182.47Z"></path></svg>                </div>
+                <div class="flex flex-col items-center justify-center
+                        w-full h-18
+                        rounded-2xl
+                        bg-zinc-100
+                        transition-all duration-300
+                        group-hover:bg-primary-500">
+                    <span class="text-zinc-800 group-hover:text-white font-yekanBakhBold mx-1 text-s lg:text-lg">
+                        یوتیوب
+                    </span>
+                    <span class="text-zinc-500 group-hover:text-white text-xs lg:text-sm mt-1 font-yekanBakhRegular">
+                    instagram.com/notic.ir
+                    </span>
+                </div>
+            </a>
+        </div>
+        <iframe class="rounded-3xl w-full" title="map-iframe" src="https://neshan.org/maps/iframe/places/3c3f4920eea09fd7fe92d9c4fe9cdc7d#c36.220-57.675-20z-0p/36.21977529424289/57.67512071663677" width="600" height="250" allowfullscreen="" loading="lazy"></iframe>
       </div>
     </div>
   </main>
-<?php
-$pageTitle = "تماس با ما";
-$pageScript = "";
-$pageLink = "";
-?>

@@ -1,4 +1,18 @@
 <?php
+// بارگذاری core (بدون وابستگی به مسیر ثابت در .htaccess)
+require_once __DIR__ . '/core.php';
+
+// درخواست به requests/* — بعد از لود core، فایل درخواست را اجرا کن
+if (!empty($_GET['__request'])) {
+    $req = (string) $_GET['__request'];
+    if (strpos($req, 'requests/') === 0 && strpos($req, '..') === false) {
+        $file = __DIR__ . '/' . $req;
+        if (is_file($file)) {
+            require $file;
+            return;
+        }
+    }
+}
 
 require_once 'tools/router.php';
 

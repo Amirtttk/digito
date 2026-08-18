@@ -63,14 +63,11 @@
                                         if ($getAllBlog) {
                                             foreach ($getAllBlog as $key => $AllBlog) {
                                                 $getOneCategories = getOneBlogCategories($AllBlog['blog_categories_id']);
-                                                if ($AllBlog['image']){
-                                                    $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $AllBlog['image']);
-                                                }
                                                 ?>
                                                 <tr id="deleteBlog<?php echo $AllBlog['id']?>">
                                                     <td><?= $keyNumber++ ?></td>
                                                     <td>
-                                                        <img width="100" height="70" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                        <img width="100" height="70" src="../../public/images/blog/<?= $AllBlog['image_name']; ?>">
                                                     </td>
                                                     <td style="min-width:100px;"><?= $AllBlog['title'] ?></td>
                                                     <td class="text-primary" style="min-width:100px;"><?= $getOneCategories['title'] ?></td>
@@ -79,13 +76,11 @@
                                                         <?php
                                                         if ($AllBlog['status'] == 1) {
                                                             ?>
-                                                            <span
-                                                                    class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
+                                                            <span class="label label-lg font-weight-bold label-light-success label-inline">فعال</span>
                                                             <?php
                                                         } else {
                                                             ?>
-                                                            <span
-                                                                    class="label label-lg font-weight-bold label-light-warning label-inline">غیر
+                                                            <span class="label label-lg font-weight-bold label-light-warning label-inline">غیر
                                                                     فعال</span>
                                                             <?php
                                                         }

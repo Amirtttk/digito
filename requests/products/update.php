@@ -4,7 +4,6 @@ $validate_fields = validator([
     'title' => 'required',
     'category_id' => 'required',
     'brand_id' => 'required',
-    'stock' => 'required|numeric',
     'length' => 'required',
     'width' => 'required',
     'height' => 'required',
@@ -23,10 +22,27 @@ if (!$validate_fields['status']) {
     exit;
 }
 
-$productId = POST('id');
+$productId = (int)POST('id');
+if (!$productId) {
+    responseJson([
+        'text' => 'شناسه محصول نامعتبر است',
+        'type' => 'error',
+        'status' => 400,
+    ]);
+    exit;
+}
+
 $uploadDir = PATH_UPLOADS_DIR . 'images/products/';
 
 $oldProduct = getOneProduct($productId);
+if (!$oldProduct) {
+    responseJson([
+        'text' => 'محصول یافت نشد',
+        'type' => 'error',
+        'status' => 404,
+    ]);
+    exit;
+}
 $oldImages = json_decode($oldProduct['images'], true) ?? [];
 
 // ❗ حذف تصاویر دقیقاً با رشته‌ای که JS می‌فرستد
@@ -50,7 +66,6 @@ foreach ($deletedImages as $del) {
         if (file_exists($filePath)) {
             unlink($filePath);
         }
-
         // حذف از آرایه
         unset($oldImages[$key]);
         $oldImages = array_values($oldImages);
@@ -61,9 +76,7 @@ foreach ($deletedImages as $del) {
         }
     }
 }
-
 // ---- آپلود تصاویر جدید ----
-
 $newImages = [];
 $mainImageIndex = isset($_POST['main_image_index']) ? intval($_POST['main_image_index']) : 0;
 
@@ -122,24 +135,31 @@ if (!empty($finalImages)) {
 
 // ---- ذخیره در دیتابیس ----
 
+$mainImage = $mainImage ?? ($finalImages[0] ?? $oldProduct['main_image'] ?? null);
+
 $fields = [
     'title' => $_POST['title'],
     'description' => $_POST['description'],
     'category_id' => $_POST['child_id'],
     'brand_id' => $_POST['brand_id'],
-    'stock' => $_POST['stock'],
+    'stock' => !empty($_POST['stock']) ? $_POST['stock'] : null,
     'token' => !empty($_POST['token']) ? $_POST['token'] : null,
     'price' => $_POST['price'],
     'english_title' => $_POST['english_title'],
-    'max_purchases' => $_POST['max_purchases'],
+    'max_purchases' =>
+        !empty($_POST['max_purchases']) ? (int)$_POST['max_purchases'] : null,
     'short_description' => $_POST['short_description'],
-    'garanti' => $_POST['garanti'],
+    'length' => (float)($_POST['length'] ?? 0),
+    'width' => (float)($_POST['width'] ?? 0),
+    'height' => (float)($_POST['height'] ?? 0),
+    'actualWeight' => (float)($_POST['actualWeight'] ?? 0),
     'slug' => $_POST['slug'],
-    'status' => $_POST['status'],
+    'status' => (int)($_POST['status'] ?? 1),
+    'special' => ($_POST['special'] == '1' || $_POST['special'] == 'on') ? 1 : 2,
+    'tip' => !empty($_POST['tip']) ? $_POST['tip'] : null,
     'images' => json_encode($finalImages),
     'main_image' => $mainImage,
 ];
-
 // قیمت ویژگی‌ها
 if (isset($_POST['feature_price']) && is_array($_POST['feature_price'])) {
     $multiPrices = [];
@@ -186,7 +206,8 @@ $seoData = [
 
 $fields['seo'] = json_encode($seoData);
 
-if (updateRecordToDatabase('products', $fields, $productId, 'id')) {
+$dbError = '';
+if (updateRecordToDatabase('products', $fields, $productId, 'id', $dbError)) {
     responseJson([
         'text' => 'محصول با موفقیت ویرایش شد',
         'type' => 'success',
@@ -194,9 +215,9 @@ if (updateRecordToDatabase('products', $fields, $productId, 'id')) {
     ]);
 } else {
     responseJson([
-        'text' => 'خطا در ویرایش محصول',
+        'text' => 'خطا در ویرایش محصول' . ($dbError ? ': ' . $dbError : ''),
         'type' => 'error',
         'status' => 500,
+        'error' => $dbError,
     ]);
 }
-

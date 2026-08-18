@@ -51,20 +51,18 @@ elseif ($selectMobileContactUs['status'] == 2){
     ]);
 }else{
     $validate_filds = validator([
-        'nameAndFamily' => 'required',
-        'mobile' => 'required',
-        'text' => 'required',
-        'subject' => 'required',
+        'nameAndFamily' => 'required|persian_chars',
+        'mobile' => 'required|mobile',
+        'text' => 'required|persian_chars',
     ]);
     if ($validate_filds["status"]){
         $table = 'cantact_us_req';
         $filds = [
-            'id' => null,
             "nameAndFamily" => $_POST["nameAndFamily"],
             "mobile" => $_POST["mobile"],
-            "email" => $_POST["email"],
-            "subject" => $_POST["subject"],
             "text" => $_POST["text"],
+            "status" => 2,
+            "createAt" =>  date('Y-m-d H:i:s'),
         ];
         if(insertRecordToDatabase($table, $filds)){
             responseJson([

@@ -1,5 +1,4 @@
 <?php
-
 $validate_filds = validator([
     'title' => 'required',
     'description' => 'required',

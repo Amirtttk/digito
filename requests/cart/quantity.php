@@ -1,9 +1,8 @@
 <?php
-// session_start();
 
 $product_id = (int)($_POST['product_id'] ?? 0);
 $variant_id = $_POST['variant_id'] ?? 'default';
-$action     = $_POST['item'] ?? null; // yes | no
+$action     = $_POST['item'] ?? null;
 
 if (!$product_id || !$action) {
     responseJson(["status" => 400, "text" => "درخواست نامعتبر است"]);
@@ -14,18 +13,31 @@ if (!$getOneProduct) {
     responseJson(["status" => 404, "text" => "محصول یافت نشد"]);
 }
 
-// کلید آیتم
 $itemKey = 'item_' . $product_id . '_' . $variant_id;
 
-// محدودیت‌ها
-$maxPurchase = (int)($getOneProduct['max_purchase'] ?? 1000);
-$stock       = (int)($getOneProduct['stock'] ?? 1000);
-
-/**
- * ======================
- * بررسی محدودیت
- * ======================
- */
+$maxPurchase = (int)($getOneProduct['max_purchases'] ?? 0);
+$stock       = (int)($getOneProduct['stock'] ?? 0);
+if ($variant_id !== 'default' && !empty($getOneProduct['price'])) {
+    $variants = json_decode($getOneProduct['price'], true);
+    if (is_array($variants)) {
+        foreach ($variants as $v) {
+            if (($v['id'] ?? '') === $variant_id) {
+                $stock = (int)($v['count'] ?? $stock);
+                if (!empty($v['max_purchases'])) {
+                    $maxPurchase = (int)$v['max_purchases'];
+                }
+                break;
+            }
+        }
+    }
+}
+if ($stock <= 0) {
+    responseJson([
+        "status" => 400,
+        "type"   => "warning",
+        "text"   => "این محصول ناموجود است"
+    ]);
+}
 function checkLimit($quantity, $maxPurchase, $stock)
 {
     if ($quantity > $stock) {
@@ -35,7 +47,6 @@ function checkLimit($quantity, $maxPurchase, $stock)
             "text"   => "تنها {$stock} عدد از این محصول موجود است",
         ]);
     }
-
     if ($maxPurchase > 0 && $quantity > $maxPurchase) {
         responseJson([
             "status" => 400,
@@ -44,23 +55,13 @@ function checkLimit($quantity, $maxPurchase, $stock)
         ]);
     }
 }
-
-/**
- * ======================
- * کاربر لاگین
- * ======================
- */
 if (!empty($_SESSION['user_sending'])) {
-
     $userId = $_SESSION['user_sending'];
-
-    $existing = getOneRecordFromCart($userId, $product_id, $variant_id);
+    $existing = getOneRecordFromCart2($userId, $product_id, $variant_id);
     if (!$existing) {
         responseJson(["status" => 404, "text" => "آیتم در سبد یافت نشد"]);
     }
-
     $quantity = (int)$existing['quantity'];
-
     if ($action === 'yes') {
         $quantity++;
         checkLimit($quantity, $maxPurchase, $stock);
@@ -85,17 +86,12 @@ if (!empty($_SESSION['user_sending'])) {
         "text"     => "تعداد به‌روزرسانی شد",
         "quantity" => $quantity,
         "count"    => array_sum(array_column($items, 'quantity')),
-        "sumPrice" => sumCart($userId),
+        "sumPrice" => sumCart(false),
         "itemsCart"=> returnItemCart($items),
         "maxPurchase" => $maxPurchase,
     ]);
 }
 
-/**
- * ======================
- * کاربر مهمان (SESSION)
- * ======================
- */
 if (!isset($_SESSION['cart'][$itemKey])) {
     responseJson(["status" => 404, "text" => "آیتم در سبد یافت نشد"]);
 }
@@ -120,9 +116,7 @@ if ($action === 'no') {
 
 $_SESSION['cart'][$itemKey]['quantity'] = $quantity;
 
-$totalQuantity = array_sum(
-    array_column($_SESSION['cart'], 'quantity')
-);
+$totalQuantity = array_sum(array_column($_SESSION['cart'], 'quantity'));
 
 responseJson([
     "status"   => 200,
@@ -130,7 +124,7 @@ responseJson([
     "text"     => "تعداد به‌روزرسانی شد",
     "quantity" => $quantity,
     "count"    => $totalQuantity,
-    "sumPrice" => sumCart(),
+    "sumPrice" => sumCart(false),
     "itemsCart"=> $_SESSION['cart'],
     "maxPurchase" => $maxPurchase,
 ]);

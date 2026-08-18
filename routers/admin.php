@@ -69,6 +69,9 @@ $router->add('/admin/blog/management', function () {
 $router->add('/admin/blog/update', function () {
     renderAdminView('blog/update');
 });
+$router->add('/admin/blog/banner', function () {
+    renderAdminView('blog/banner');
+});
 $router->add('/admin/category/create', function () {
     renderAdminView('category/create');
 });
@@ -110,6 +113,12 @@ $router->add('/admin/contactUs/update', function () {
 $router->add('/admin/coupons/create', function () {
     renderAdminView('coupons/create');
 });
+$router->add('/admin/coupons/update', function () {
+    renderAdminView('coupons/update');
+});
+$router->add('/admin/coupons/management', function () {
+    renderAdminView('coupons/management');
+});
 $router->add('/admin/tickets/management', function () {
     renderAdminView('tickets/management');
 });
@@ -124,4 +133,67 @@ $router->add('/admin/tickets/createNewticket', function () {
 });
 $router->add('/admin/users/management', function () {
     renderAdminView('users/management');
+});
+$router->add('/admin/orders/management', function () {
+    renderAdminView('orders/management');
+});
+$router->add('/admin/orders/details', function () {
+    renderAdminView('orders/details');
+});
+$router->add('/admin/pages/management', function () {
+    renderAdminView('pages/management');
+});
+$router->add('/admin/pages/update', function () {
+    renderAdminView('pages/update');
+});
+$router->add('/admin/comments/management', function () {
+    renderAdminView('comments/management');
+});
+$router->add('/admin/comments/update', function () {
+    renderAdminView('comments/update');
+});
+$router->add('/admin/reports/dayli', function () {
+    renderAdminView('reports/dayli');
+});
+$router->add('/admin/reports/weekly', function () {
+    renderAdminView('reports/weekly');
+});
+$router->add('/admin/reports/monthly', function () {
+    renderAdminView('reports/monthly');
+});
+$router->add('/admin/notifications/management', function () {
+    renderAdminView('notifications/management');
+});
+$router->add('/admin/notifications/create', function () {
+    renderAdminView('notifications/create');
+});
+$router->add('/admin/notifications/update', function () {
+    renderAdminView('notifications/update');
+});
+$router->add('/admin/trust/create', function () {
+    renderAdminView('trust/create');
+});
+$router->add('/admin/trust/management', function () {
+    renderAdminView('trust/management');
+});
+$router->add('/admin/trust/update', function () {
+    renderAdminView('trust/update');
+});
+$router->add('/admin/profile/information', function () {
+    renderAdminView('profile/information');
+});
+$router->add('/admin/profile/profileTiket', function () {
+    renderAdminView('profile/profileTiket');
+});
+$router->add('/admin/profile/profileOrder', function () {
+    renderAdminView('profile/profileOrder');
+});
+$router->add('/admin/downloadFile', function () {
+    renderAdminView('downloadFile');
+});
+$router->add('/admin/appointment/settings', function () {
+    renderAdminView('appointment/settings');
+});
+$router->add('/admin/appointment/management', function () {
+    renderAdminView('appointment/management');
 });

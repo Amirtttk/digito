@@ -60,9 +60,9 @@ $getCategoryById = getCategoryById(GET('id'));
                                             <div>
                                                 <div class="form-group row">
                                                     <div class="col-lg-4">
-                                                        <label>عنوان مقاله: </label>
+                                                        <label>عنوان دسته بندی: </label>
                                                         <input name="title" type="text" value="<?= $getCategoryById['title'] ?>" class="form-control"
-                                                               data-v-message="عنوان مقاله نمیتواند خالی بماند" required
+                                                               data-v-message="عنوان دسته بندی نمیتواند خالی بماند" required
                                                                placeholder="عنوان مقاله را وارد کنید" />
                                                     </div>
                                                 </div>
@@ -90,7 +90,7 @@ $getCategoryById = getCategoryById(GET('id'));
                                             <div class="card-footer">
                                                 <div class="row">
                                                     <div class="col-lg-6">
-                                                        <?php if ($getCategoryById['image'] != "http://public.rastasalamat.test/no_photo.png") { ?>
+                                                        <?php if ($getCategoryById['image_name'] != "http://public.rastasalamat.test/no_photo.png") { ?>
                                                             <button id="buttonImage2" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                                                                 مشاهده تصویر قبلی
                                                             </button>
@@ -109,13 +109,7 @@ $getCategoryById = getCategoryById(GET('id'));
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        <?php
-                                                                        $thumbnail = '';
-                                                                        if ($getCategoryById['image']) {
-                                                                            $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getCategoryById['image']);
-                                                                        }
-                                                                        ?>
-                                                                        <img id="imageOld" class="w-100" height="300" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                                        <img id="imageOld" class="w-100" height="300" src="../../public/images/category/<?= $getCategoryById['image_name']; ?>">
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">فهمیدم</button>

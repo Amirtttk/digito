@@ -58,16 +58,14 @@
                                             <?php
                                             $keyNumber = 1;
                                             $getAllBrand = getAllBrand();
+
                                             if ($getAllBrand) {
                                                 foreach ($getAllBrand as $key => $AllBrand) {
-                                                    if ($AllBrand['image']){
-                                                        $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $AllBrand['image']);
-                                                    }
                                                     ?>
                                                     <tr id="deleteHonors<?php echo $AllBrand['id']?>">
                                                         <td><?= $keyNumber++ ?></td>
                                                         <td>
-                                                            <img width="100" height="70" src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>">
+                                                            <img width="100" height="70" src="../../public/images/brand/<?= $AllBrand['image_name']; ?>">
                                                         </td>
                                                         <td><?= $AllBrand['title'] ?></td>
                                                         <td id="statusShow<?= $AllBrand['id'] ?>">

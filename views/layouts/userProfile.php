@@ -1,9 +1,6 @@
 <?php
 $getInfoUser = getInfoUser($_SESSION['user_sending']);
 $getInformation = getInformation();
-if ($getInformation['image']){
-    $thumbnail = str_replace(PATH_UPLOADS_DIR, 'public/', $getInformation['image']);
-}
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl" class="scroll-smooth">
@@ -38,7 +35,7 @@ if ($getInformation['image']){
         <!-- logo -->
         <div class="flex justify-center">
             <a href="/">
-                <img src="<?= $thumbnail ? "../../" . $thumbnail : '' ?>" class="max-w-24 md:max-w-28 h-fit" alt="">
+                <img src="../../public/images/logo/<?= $getInformation['image_name']; ?>" class="max-w-24 md:max-w-28 h-fit" alt="">
             </a>
         </div>
     </div>
@@ -53,7 +50,7 @@ if ($getInformation['image']){
             </a>
         </li>
         <li>
-            <a href="#" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+            <a href="/orders" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
                 <svg class="fill-gray-700" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#000000" viewBox="0 0 256 256"><path d="M104,216a16,16,0,1,1-16-16A16,16,0,0,1,104,216Zm88-16a16,16,0,1,0,16,16A16,16,0,0,0,192,200ZM239.71,74.14l-25.64,92.28A24.06,24.06,0,0,1,191,184H92.16A24.06,24.06,0,0,1,69,166.42L33.92,40H16a8,8,0,0,1,0-16H40a8,8,0,0,1,7.71,5.86L57.19,64H232a8,8,0,0,1,7.71,10.14ZM221.47,80H61.64l22.81,82.14A8,8,0,0,0,92.16,168H191a8,8,0,0,0,7.71-5.86Z"></path></svg>
                 سفارشات
             </a>
@@ -65,9 +62,23 @@ if ($getInformation['image']){
             </a>
         </li>
         <li>
+            <a href="/ticket" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#000000" viewBox="0 0 256 256"><path d="M232.07,186.76a80,80,0,0,0-62.5-114.17A80,80,0,1,0,23.93,138.76l-7.27,24.71a16,16,0,0,0,19.87,19.87l24.71-7.27a80.39,80.39,0,0,0,25.18,7.35,80,80,0,0,0,108.34,40.65l24.71,7.27a16,16,0,0,0,19.87-19.86ZM62,159.5a8.28,8.28,0,0,0-2.26.32L32,168l8.17-27.76a8,8,0,0,0-.63-6,64,64,0,1,1,26.26,26.26A8,8,0,0,0,62,159.5Zm153.79,28.73L224,216l-27.76-8.17a8,8,0,0,0-6,.63,64.05,64.05,0,0,1-85.87-24.88A79.93,79.93,0,0,0,174.7,89.71a64,64,0,0,1,41.75,92.48A8,8,0,0,0,215.82,188.23Z"></path></svg>
+                تیکت ها
+            </a>
+        </li>
+        <li>
             <a href="/address" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
                 <svg class="fill-gray-700" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#000000" viewBox="0 0 256 256"><path d="M112,80a16,16,0,1,1,16,16A16,16,0,0,1,112,80ZM64,80a64,64,0,0,1,128,0c0,59.95-57.58,93.54-60,94.95a8,8,0,0,1-7.94,0C121.58,173.54,64,140,64,80Zm16,0c0,42.2,35.84,70.21,48,78.5,12.15-8.28,48-36.3,48-78.5a48,48,0,0,0-96,0Zm122.77,67.63a8,8,0,0,0-5.54,15C213.74,168.74,224,176.92,224,184c0,13.36-36.52,32-96,32s-96-18.64-96-32c0-7.08,10.26-15.26,26.77-21.36a8,8,0,0,0-5.54-15C29.22,156.49,16,169.41,16,184c0,31.18,57.71,48,112,48s112-16.82,112-48C240,169.41,226.78,156.49,202.77,147.63Z"></path></svg>
                 آدرس ها
+            </a>
+        </li>
+        <li>
+            <a href="/dashboardMessages" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex justify-between">
+                <div class="flex gap-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M227.33,91l-96-64a6,6,0,0,0-6.66,0l-96,64A6,6,0,0,0,26,96V200a14,14,0,0,0,14,14H216a14,14,0,0,0,14-14V96A6,6,0,0,0,227.33,91ZM100.18,152,38,195.9V107.65Zm12.27,6h31.1l62.29,44H50.16Zm43.37-6L218,107.65V195.9ZM128,39.21l85.43,57L143.53,146H112.47L42.57,96.17Z"></path></svg>
+                    پیغام ها
+                </div>
             </a>
         </li>
         <li>
@@ -106,33 +117,27 @@ if ($getInformation['image']){
             <div class="z-50 group-hover:block left-0 top-[37px] w-60 rounded-lg bg-white drop-shadow-lg hidden absolute">
                 <ul class="space-y-1 p-2">
                     <li>
-                        <a class="flex items-center justify-between gap-x-2 rounded-lg p-2 text-zinc-700 hover:text-zinc-800 transition hover:bg-gray-100" href="./profile-order.html">
-                <span class="flex items-center gap-x-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M237.9,198.36l-14.25-120a14.06,14.06,0,0,0-14-12.36H174V64a46,46,0,0,0-92,0v2H46.33a14.06,14.06,0,0,0-14,12.36l-14.25,120a14,14,0,0,0,14,15.64H223.92a14,14,0,0,0,14-15.64ZM94,64a34,34,0,0,1,68,0v2H94ZM225.5,201.3a2.07,2.07,0,0,1-1.58.7H32.08a2.07,2.07,0,0,1-1.58-.7,1.92,1.92,0,0,1-.49-1.53l14.26-120A2,2,0,0,1,46.33,78H209.67a2,2,0,0,1,2.06,1.77l14.26,120A1.92,1.92,0,0,1,225.5,201.3Z"></path></svg>
-                  <span class="text-sm">سفارش ها</span>
-                </span>
+                        <a class="flex items-center justify-between gap-x-2 rounded-lg p-2 text-zinc-700 hover:text-zinc-800 transition hover:bg-gray-100" href="./order">
+                            <span class="flex items-center gap-x-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M237.9,198.36l-14.25-120a14.06,14.06,0,0,0-14-12.36H174V64a46,46,0,0,0-92,0v2H46.33a14.06,14.06,0,0,0-14,12.36l-14.25,120a14,14,0,0,0,14,15.64H223.92a14,14,0,0,0,14-15.64ZM94,64a34,34,0,0,1,68,0v2H94ZM225.5,201.3a2.07,2.07,0,0,1-1.58.7H32.08a2.07,2.07,0,0,1-1.58-.7,1.92,1.92,0,0,1-.49-1.53l14.26-120A2,2,0,0,1,46.33,78H209.67a2,2,0,0,1,2.06,1.77l14.26,120A1.92,1.92,0,0,1,225.5,201.3Z"></path></svg>
+                              <span class="text-sm">سفارش ها</span>
+                            </span>
                         </a>
                     </li>
                     <li>
                         <a class="flex items-center justify-between gap-x-2 rounded-lg p-2 text-zinc-700 hover:text-zinc-800 transition hover:bg-gray-100" href="/favorites">
-                <span class="flex items-center gap-x-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M178,34c-21,0-39.26,9.47-50,25.34C117.26,43.47,99,34,78,34A60.07,60.07,0,0,0,18,94c0,29.2,18.2,59.59,54.1,90.31a334.68,334.68,0,0,0,53.06,37,6,6,0,0,0,5.68,0,334.68,334.68,0,0,0,53.06-37C219.8,153.59,238,123.2,238,94A60.07,60.07,0,0,0,178,34ZM128,209.11C111.59,199.64,30,149.72,30,94A48.05,48.05,0,0,1,78,46c20.28,0,37.31,10.83,44.45,28.27a6,6,0,0,0,11.1,0C140.69,56.83,157.72,46,178,46a48.05,48.05,0,0,1,48,48C226,149.72,144.41,199.64,128,209.11Z"></path></svg>
-                  <span class="text-sm">علاقه مندی ها</span>
-                </span>
+                            <span class="flex items-center gap-x-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M178,34c-21,0-39.26,9.47-50,25.34C117.26,43.47,99,34,78,34A60.07,60.07,0,0,0,18,94c0,29.2,18.2,59.59,54.1,90.31a334.68,334.68,0,0,0,53.06,37,6,6,0,0,0,5.68,0,334.68,334.68,0,0,0,53.06-37C219.8,153.59,238,123.2,238,94A60.07,60.07,0,0,0,178,34ZM128,209.11C111.59,199.64,30,149.72,30,94A48.05,48.05,0,0,1,78,46c20.28,0,37.31,10.83,44.45,28.27a6,6,0,0,0,11.1,0C140.69,56.83,157.72,46,178,46a48.05,48.05,0,0,1,48,48C226,149.72,144.41,199.64,128,209.11Z"></path></svg>
+                              <span class="text-sm">علاقه مندی ها</span>
+                            </span>
                         </a>
                     </li>
                     <li>
-                        <a class="flex items-center justify-between gap-x-2 rounded-lg p-2 text-zinc-700 hover:text-zinc-800 transition hover:bg-gray-100" href="./profile-messages.html">
-                <span class="flex items-center gap-x-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M227.33,91l-96-64a6,6,0,0,0-6.66,0l-96,64A6,6,0,0,0,26,96V200a14,14,0,0,0,14,14H216a14,14,0,0,0,14-14V96A6,6,0,0,0,227.33,91ZM100.18,152,38,195.9V107.65Zm12.27,6h31.1l62.29,44H50.16Zm43.37-6L218,107.65V195.9ZM128,39.21l85.43,57L143.53,146H112.47L42.57,96.17Z"></path></svg>
-                  <span>پیغام ها</span>
-                </span>
-                            <span class="relative flex h-5 w-5">
-                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-500 opacity-75"></span>
-                  <span class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-sm text-white">
-                    4
-                  </span>
-                </span>
+                        <a class="flex items-center justify-between gap-x-2 rounded-lg p-2 text-zinc-700 hover:text-zinc-800 transition hover:bg-gray-100" href="/dashboardMessages">
+                            <span class="flex items-center gap-x-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4d4d4d" viewBox="0 0 256 256"><path d="M227.33,91l-96-64a6,6,0,0,0-6.66,0l-96,64A6,6,0,0,0,26,96V200a14,14,0,0,0,14,14H216a14,14,0,0,0,14-14V96A6,6,0,0,0,227.33,91ZM100.18,152,38,195.9V107.65Zm12.27,6h31.1l62.29,44H50.16Zm43.37-6L218,107.65V195.9ZM128,39.21l85.43,57L143.53,146H112.47L42.57,96.17Z"></path></svg>
+                              <span>پیغام ها</span>
+                            </span>
                         </a>
                     </li>
                     <li>
@@ -147,7 +152,6 @@ if ($getInformation['image']){
             </div>
         </div>
     </header>
-
     <?= $_SESSION['page']['content'] ?>
     <footer class="bg-white h-12 flex items-center justify-end px-5 w-full text-zinc-500 text-xs shrink-0">
         تمامی حقوق توسط تیم برنامه نویسی امیران محفوظ است.

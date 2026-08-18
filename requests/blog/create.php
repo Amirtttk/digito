@@ -1,19 +1,16 @@
 <?php
 
-$validate_filds = validator([
+$validate_fields = validator([
     'title' => 'required',
     'description' => 'required',
-    'author' => 'required',
 ]);
-if ($validate_filds["status"]) {
-    $imagePath = NULL;
+if ($validate_fields["status"]) {
+    $image_name = NULL; // فقط نام فایل
+    $image_url = NULL; // URL برای فرانت
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = PATH_UPLOADS_DIR.'images/blog/';
-        $fileName = time() . '_' . basename($_FILES['image']['name']);
-        $targetFilePath = $uploadDir . $fileName;
-        $maxFileSize = 2 * 1024 * 1024;
-        $allowedFileTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'];
-        $fileType = mime_content_type($_FILES['image']['tmp_name']);
+        $uploadDir = PATH_UPLOADS_DIR . 'images/blog/';
+        // بررسی حجم
+        $maxFileSize = 2 * 1024 * 1024; // 2 مگابایت
         if ($_FILES['image']['size'] > $maxFileSize) {
             responseJson([
                 'text' => 'حجم تصویر بیش از حد مجاز است. (حداکثر 2 مگابایت)',
@@ -22,7 +19,19 @@ if ($validate_filds["status"]) {
             ]);
             exit;
         }
-        if (!in_array($fileType, $allowedFileTypes)) {
+
+        // بررسی نوع فایل با MIME واقعی
+        $allowedFileTypes = [
+            'image/png' => 'png',
+            'image/jpeg' => 'jpg',
+            'image/jpg' => 'jpg',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+        ];
+
+        $fileType = mime_content_type($_FILES['image']['tmp_name']);
+
+        if (!array_key_exists($fileType, $allowedFileTypes)) {
             responseJson([
                 'text' => 'نوع فایل مجاز نیست. (فقط png, jpg, gif, webp)',
                 'type' => 'warning',
@@ -30,9 +39,15 @@ if ($validate_filds["status"]) {
             ]);
             exit;
         }
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-            $imagePath = $targetFilePath;
-        } else {
+
+        // ساخت نام یکتا برای فایل
+        $suffix = $allowedFileTypes[$fileType];
+        $image_name = md5($_FILES['image']['name'] . microtime(true)) . '.' . $suffix;
+
+        // مسیر فیزیکی فایل روی سرور
+        $targetFilePath = $uploadDir . $image_name;
+
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
             responseJson([
                 'text' => 'آپلود تصویر با مشکل مواجه شد.',
                 'type' => 'warning',
@@ -40,6 +55,8 @@ if ($validate_filds["status"]) {
             ]);
             exit;
         }
+        // مسیر نمایش تصویر برای فرانت
+        $image_url = '/images/blog/' . $image_name;
     } else {
         responseJson([
             'text' => 'تصویر آپلود نشده است.',
@@ -53,6 +70,7 @@ if ($validate_filds["status"]) {
     $fields = [
         'id'=>NULL,
         'title' => $_POST['title'],
+        'reading_time' => $_POST['reading_time'],
         'blog_categories_id' => $_POST['blog_categories_id'],
         'description' => $_POST['description'],
         'author' => $_POST['author'],
@@ -60,30 +78,40 @@ if ($validate_filds["status"]) {
         'status' => 1,
         'slug' =>$_POST['slug'],
         'label' =>$_POST['label'],
-        'image' => $imagePath,
-        'image_name' => $fileName,
+        'image_name' => $image_name,
     ];
+    $keywordsArray = !empty($_POST['keywords'])
+        ? array_map('trim', explode(',', $_POST['keywords']))
+        : [];
+    $fields['seo'] = json_encode([
+        'title' => $_POST['title'],
+        'keywords' => $keywordsArray,
+        'seo_description' => $_POST['seo_description'] ?? '',
+        'canonical' => $_POST['canonical'] ?? '',
+    ], JSON_UNESCAPED_UNICODE);
+
     if (insertRecordToDatabase($table, $fields)) {
         responseJson([
             'text' => 'ایجاد مقاله با موفقیت انجام شد',
             'type' => 'success',
             'status' => 200,
+            'src' => $image_url, // مسیر نمایش
         ]);
     } else {
         responseJson([
-            'text' => 'درایجاد رژیم  مشکلی پیش امده است',
+            'text' => 'در ایجاد مقاله مشکلی پیش آمده است',
             'type' => 'warning',
             'status' => 400,
             'error' => initFormErrors(),
         ]);
     }
+
 } else {
     responseJson([
-        'text' => 'فیلد ها را درست وارد کنید',
+        'text' => 'فیلدها را درست وارد کنید',
         'type' => 'warning',
         'status' => 400,
         'error' => initFormErrors(),
     ]);
 }
-
 
